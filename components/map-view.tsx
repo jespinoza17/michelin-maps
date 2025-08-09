@@ -1,10 +1,9 @@
 "use client"
 
-import "leaflet/dist/leaflet.css"
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet"
-import L, { type DivIcon } from "leaflet"
+import Map, { Marker, NavigationControl, GeolocateControl } from "react-map-gl/mapbox"
 import type { Restaurant } from "@/lib/types"
-import { useEffect, useMemo } from "react"
+import { useMemo, useCallback } from "react"
+import 'mapbox-gl/dist/mapbox-gl.css'
 
 type Props = {
   restaurants?: Restaurant[]
@@ -21,55 +20,35 @@ function starColor(stars: number) {
   return "#14b8a6" // teal-500
 }
 
-function createStarIcon(stars: number, selected: boolean): DivIcon {
+function createStarMarker(stars: number, selected: boolean) {
   const size = selected ? 36 : 28
   const border = selected ? "3px solid #7c3aed" : "2px solid white" // violet-600 when selected
   const shadow = selected ? "0 8px 16px rgba(0,0,0,0.25)" : "0 4px 10px rgba(0,0,0,0.2)"
   const bg = starColor(stars)
-  const html = `
-    <div style="
-      width:${size}px;
-      height:${size}px;
-      border-radius:50%;
-      background:${bg};
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color:white;
-      font-weight:700;
-      font-size:${selected ? 14 : 12}px;
-      border:${border};
-      box-shadow:${shadow};
-    ">${stars}</div>
-  `
-  return L.divIcon({
-    html,
-    className: "michelin-star-marker",
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2],
-    popupAnchor: [0, -size / 2],
-  })
+  
+  return (
+    <div
+      style={{
+        width: size,
+        height: size,
+        borderRadius: "50%",
+        background: bg,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "white",
+        fontWeight: 700,
+        fontSize: selected ? 14 : 12,
+        border: border,
+        boxShadow: shadow,
+        cursor: "pointer",
+      }}
+    >
+      {stars}
+    </div>
+  )
 }
 
-function MapEvents({
-  onMove,
-}: {
-  onMove?: (center: [number, number], zoom: number) => void
-}) {
-  useMapEvents({
-    moveend: (e) => {
-      const m = e.target
-      const c = m.getCenter()
-      onMove?.([c.lat, c.lng], m.getZoom())
-    },
-    zoomend: (e) => {
-      const m = e.target
-      const c = m.getCenter()
-      onMove?.([c.lat, c.lng], m.getZoom())
-    },
-  })
-  return null
-}
 
 export default function MapView({
   restaurants = [],
@@ -79,32 +58,59 @@ export default function MapView({
   onMarkerClick,
   onMove,
 }: Props) {
-  // Ensure Leaflet knows how to render hi-DPI if needed (no default pngs used)
-  useEffect(() => {
-    // no-op placeholder for future map theming
-  }, [])
+  const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
+
+  const handleMove = useCallback((evt: any) => {
+    const { longitude, latitude } = evt.viewState
+    const { zoom: newZoom } = evt.viewState
+    onMove?.([latitude, longitude], newZoom)
+  }, [onMove])
 
   const positions = useMemo(() => restaurants.map((r) => ({ ...r })), [restaurants])
 
+  if (!mapboxToken) {
+    return (
+      <div className="w-full h-[calc(100dvh-56px)] md:h-[calc(100dvh-64px)] flex items-center justify-center bg-gray-100">
+        <div className="text-center p-4">
+          <p className="text-red-600 font-semibold">Mapbox access token is missing</p>
+          <p className="text-sm text-gray-600 mt-2">
+            Please add your Mapbox access token to the .env.local file
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="w-full h-[calc(100dvh-56px)] md:h-[calc(100dvh-64px)]">
-      <MapContainer center={center} zoom={zoom} scrollWheelZoom style={{ width: "100%", height: "100%" }} worldCopyJump>
-        <TileLayer
-          attribution={"&copy; OpenStreetMap contributors"}
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <MapEvents onMove={onMove} />
+    <div className="w-full h-[calc(100dvh-56px)] md:h-[calc(100dvh-64px)]" suppressHydrationWarning>
+      <Map
+        mapboxAccessToken={mapboxToken}
+        initialViewState={{
+          longitude: center[1],
+          latitude: center[0],
+          zoom: zoom
+        }}
+        style={{ width: "100%", height: "100%" }}
+        mapStyle="mapbox://styles/mapbox/streets-v12"
+        onMove={handleMove}
+      >
+        <NavigationControl position="top-right" />
+        <GeolocateControl position="top-right" />
+        
         {positions.map((r) => (
           <Marker
             key={r.id}
-            position={[r.lat, r.lng]}
-            icon={createStarIcon(r.stars, r.id === (selectedId ?? ""))}
-            eventHandlers={{
-              click: () => onMarkerClick?.(r),
+            longitude={r.lng}
+            latitude={r.lat}
+            onClick={(e) => {
+              e.originalEvent.stopPropagation()
+              onMarkerClick?.(r)
             }}
-          />
+          >
+            {createStarMarker(r.stars, r.id === (selectedId ?? ""))}
+          </Marker>
         ))}
-      </MapContainer>
+      </Map>
     </div>
   )
 }

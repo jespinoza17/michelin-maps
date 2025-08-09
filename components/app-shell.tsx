@@ -29,7 +29,7 @@ import {
 } from "lucide-react"
 import type { Restaurant } from "@/lib/types"
 
-// Dynamically import the Map to avoid SSR issues with Leaflet
+// Dynamically import the Map to avoid SSR issues
 const MapView = dynamic(() => import("@/components/map-view"), { ssr: false })
 
 type Filters = {
@@ -485,10 +485,10 @@ function FiltersPanel({
             onValueChange={(v) => onChange({ ...filters, priceRange: [v[0], v[1]] as [number, number] })}
           />
           <div className="flex justify-between mt-1 text-xs text-zinc-500">
-            <span>$</span>
-            <span>$$</span>
-            <span>$$$</span>
-            <span>$$$$</span>
+            <span>€</span>
+            <span>€€</span>
+            <span>€€€</span>
+            <span>€€€€</span>
           </div>
         </div>
       </div>
@@ -556,7 +556,7 @@ function ListPanel({
                 <span className="text-zinc-400">•</span>
                 <span>{r.cuisine}</span>
                 <span className="text-zinc-400">•</span>
-                <span>{"$".repeat(Math.max(1, Math.min(4, r.price_level)))}</span>
+                <span>{"€".repeat(Math.max(1, Math.min(4, r.price_level)))}</span>
               </div>
             </div>
           </div>
@@ -572,15 +572,15 @@ function ListPanel({
 }
 
 function RestaurantCard({ restaurant, onClose }: { restaurant: Restaurant; onClose: () => void }) {
-  const img =
-    restaurant.image_url || `/placeholder.svg?height=200&width=400&query=michelin%20star%20restaurant%20interior`
+  const img = `/placeholder.svg?height=200&width=400&query=michelin%20star%20restaurant%20interior`
+  
   return (
     <Card className="shadow-lg border-violet-200">
       <CardContent className="p-0">
         <div className="relative">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={img || "/placeholder.svg"}
+            src={img}
             alt={`${restaurant.name} image`}
             className="w-full h-40 object-cover rounded-t-md"
           />
@@ -593,6 +593,11 @@ function RestaurantCard({ restaurant, onClose }: { restaurant: Restaurant; onClo
           >
             <X className="size-4" />
           </Button>
+          {restaurant.greenStar && (
+            <Badge className="absolute top-2 left-2 bg-green-600 text-white">
+              Green Star
+            </Badge>
+          )}
         </div>
         <div className="p-3">
           <div className="flex items-start justify-between gap-2">
@@ -601,12 +606,21 @@ function RestaurantCard({ restaurant, onClose }: { restaurant: Restaurant; onClo
               <div className="text-xs text-zinc-500">
                 {restaurant.city}, {restaurant.country}
               </div>
+              <div className="text-xs text-zinc-400 mt-1">
+                {restaurant.address}
+              </div>
             </div>
             <Badge className="bg-violet-600">{restaurant.stars}★</Badge>
           </div>
           <div className="mt-2 text-sm text-zinc-700">
-            {restaurant.cuisine} • {"$".repeat(Math.max(1, Math.min(4, restaurant.price_level)))}
+            {restaurant.cuisine} • {"€".repeat(Math.max(1, Math.min(4, restaurant.price_level)))}
           </div>
+          {restaurant.facilities.length > 0 && (
+            <div className="mt-2 text-xs text-zinc-500">
+              {restaurant.facilities.slice(0, 3).join(", ")}
+              {restaurant.facilities.length > 3 && "..."}
+            </div>
+          )}
           <div className="mt-3 flex flex-wrap gap-2">
             {restaurant.phone && (
               <Button asChild size="sm" variant="outline">
