@@ -12,6 +12,7 @@ type Props = {
   selectedId?: string
   onMarkerClick?: (r: Restaurant) => void
   onMove?: (center: [number, number], zoom: number) => void
+  isLoading?: boolean
 }
 
 function starColor(stars: number) {
@@ -52,11 +53,12 @@ function createStarMarker(stars: number, selected: boolean) {
 
 export default function MapView({
   restaurants = [],
-  center = [20, 0],
+  center = [39.8, -98.6],
   zoom = 2,
   selectedId,
   onMarkerClick,
   onMove,
+  isLoading = false,
 }: Props) {
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
 
@@ -66,7 +68,25 @@ export default function MapView({
     onMove?.([latitude, longitude], newZoom)
   }, [onMove])
 
-  const positions = useMemo(() => restaurants.map((r) => ({ ...r })), [restaurants])
+  const positions = useMemo(() => {
+    console.log('MapView received restaurants:', restaurants.length, restaurants.slice(0, 2))
+    
+    const validRestaurants = restaurants.filter((r) => {
+      const hasCoords = r.lat && r.lng
+      const isFinite = Number.isFinite(r.lat) && Number.isFinite(r.lng)
+      const isValid = hasCoords && isFinite
+      
+      if (!isValid) {
+        console.log('Invalid restaurant coords:', r.name, r.lat, r.lng)
+      }
+      
+      return isValid
+    })
+    
+    console.log(`Filtered ${restaurants.length} restaurants to ${validRestaurants.length} valid ones`)
+    
+    return validRestaurants.map((r) => ({ ...r }))
+  }, [restaurants])
 
   if (!mapboxToken) {
     return (
@@ -82,7 +102,7 @@ export default function MapView({
   }
 
   return (
-    <div className="w-full h-[calc(100dvh-56px)] md:h-[calc(100dvh-64px)]" suppressHydrationWarning>
+    <div className="w-full h-[calc(100dvh-56px)] md:h-[calc(100dvh-64px)] relative" suppressHydrationWarning>
       <Map
         mapboxAccessToken={mapboxToken}
         initialViewState={{
@@ -97,7 +117,7 @@ export default function MapView({
         <NavigationControl position="top-right" />
         <GeolocateControl position="top-right" />
         
-        {positions.map((r) => (
+        {!isLoading && positions.map((r) => (
           <Marker
             key={r.id}
             longitude={r.lng}
@@ -111,6 +131,15 @@ export default function MapView({
           </Marker>
         ))}
       </Map>
+      
+      {isLoading && (
+        <div className="absolute inset-0 bg-white/75 flex items-center justify-center z-10">
+          <div className="flex flex-col items-center space-y-3">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
+            <p className="text-sm text-gray-600 font-medium">Loading restaurants...</p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

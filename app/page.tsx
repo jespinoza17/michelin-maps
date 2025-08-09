@@ -5,22 +5,31 @@ import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { LocateFixed, Search } from "lucide-react"
+import { LocateFixed } from "lucide-react"
+import CitySearch from "@/components/city-search"
+import type { City } from "@/lib/cities"
 
 export default function HomePage() {
   const [query, setQuery] = useState("")
   const [geoBusy, setGeoBusy] = useState(false)
+  const [selectedCity, setSelectedCity] = useState<City | null>(null)
   const router = useRouter()
 
-  async function goToMapWithLocation() {
+  async function goToMapWithLocation(city?: City) {
+    // If a city is provided, use its coordinates instead of geolocation
+    if (city) {
+      router.push(`/map?ll=${city.latitude},${city.longitude}&l=${encodeURIComponent(city.name)}&cities=${encodeURIComponent(city.name)}&z=11`)
+      return
+    }
+
+    // Otherwise use geolocation
     if (!navigator.geolocation) {
       router.push("/map?l=near%20me")
       return
     }
     try {
       setGeoBusy(true)
-      await new Promise<void>((resolve, reject) => {
+      await new Promise<void>((resolve) => {
         navigator.geolocation.getCurrentPosition(
           (pos) => {
             const { latitude, longitude } = pos.coords
@@ -39,6 +48,15 @@ export default function HomePage() {
     }
   }
 
+  async function handleLocationButtonClick() {
+    await goToMapWithLocation()
+  }
+
+  function onCitySelect(city: City) {
+    setSelectedCity(city)
+    setQuery(city.name)
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     const q = query.trim()
@@ -47,8 +65,13 @@ export default function HomePage() {
       await goToMapWithLocation()
       return
     }
-    // Treat input as a city/country search
-    router.push(`/map?l=${encodeURIComponent(q)}`)
+    // If a city was selected, use its coordinates and location with cities parameter for API
+    if (selectedCity) {
+      router.push(`/map?ll=${selectedCity.latitude},${selectedCity.longitude}&l=${encodeURIComponent(selectedCity.name)}&cities=${encodeURIComponent(selectedCity.name)}&z=11`)
+    } else {
+      // Treat input as a city/country search with cities parameter
+      router.push(`/map?l=${encodeURIComponent(q)}&cities=${encodeURIComponent(q)}`)
+    }
   }
 
   return (
@@ -70,23 +93,35 @@ export default function HomePage() {
           >
             <div className="flex gap-2">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-zinc-400" />
-                <Input
+                <CitySearch
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={(value) => {
+                    setQuery(value)
+                    // Clear selected city if user manually types
+                    if (selectedCity && value !== selectedCity.name) {
+                      setSelectedCity(null)
+                    }
+                  }}
+                  onCitySelect={onCitySelect}
                   placeholder="Find Michelin restaurants near me"
-                  className="pl-10 h-12 text-base"
-                  aria-label="Search"
+                  className="h-12 text-base"
                 />
               </div>
-              <Button type="submit" className="h-12 px-6 bg-violet-600 hover:bg-violet-700">
+              <Button 
+                type="submit" 
+                className={`h-12 px-6 ${
+                  selectedCity 
+                    ? "bg-violet-600 hover:bg-violet-700 text-white" 
+                    : "bg-white border border-gray-200 text-violet-600 hover:bg-gray-50"
+                }`}
+              >
                 Search
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 className="h-12 px-3 bg-white/80"
-                onClick={goToMapWithLocation}
+                onClick={handleLocationButtonClick}
                 disabled={geoBusy}
                 aria-label="Use my location"
               >
@@ -99,7 +134,7 @@ export default function HomePage() {
             {["Tokyo", "Paris", "New York", "London", "Barcelona"].map((city) => (
               <button
                 key={city}
-                onClick={() => router.push(`/map?l=${encodeURIComponent(city)}`)}
+                onClick={() => router.push(`/map?l=${encodeURIComponent(city)}&cities=${encodeURIComponent(city)}`)}
                 className="text-sm rounded-full border border-violet-200 bg-white/70 px-3 py-1.5 text-zinc-700 hover:bg-violet-50"
                 aria-label={`Search ${city}`}
               >

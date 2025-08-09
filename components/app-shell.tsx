@@ -28,6 +28,8 @@ import {
   PanelLeftOpen,
 } from "lucide-react"
 import type { Restaurant } from "@/lib/types"
+import type { City } from "@/lib/cities"
+import CitySearch from "@/components/city-search"
 
 // Dynamically import the Map to avoid SSR issues
 const MapView = dynamic(() => import("@/components/map-view"), { ssr: false })
@@ -54,8 +56,8 @@ export default function AppShell() {
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [isFiltersOpen, setIsFiltersOpen] = useState(false) // mobile sheet
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true) // desktop sidebar
-  const [center, setCenter] = useState<[number, number]>([20, 0])
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false) // desktop sidebar
+  const [center, setCenter] = useState<[number, number]>([39.8, -98.6])
   const [zoom, setZoom] = useState<number>(2)
 
   const router = useRouter()
@@ -67,10 +69,32 @@ export default function AppShell() {
     const run = async () => {
       try {
         setIsLoading(true)
-        const res = await fetch("/api/restaurants", { cache: "no-store" })
+        
+        // Build query parameters from URL
+        const params = new URLSearchParams()
+        const cities = searchParams.get("cities")
+        const stars = searchParams.get("s")
+        const cuisines = searchParams.get("c")
+        const price = searchParams.get("p")
+        const q = searchParams.get("q")
+        
+        if (cities) params.set("cities", cities)
+        if (stars) params.set("stars", stars)
+        if (cuisines) params.set("cuisines", cuisines)
+        if (price) params.set("priceLevel", price)
+        if (q) params.set("search", q)
+        
+        const queryString = params.toString()
+        const url = queryString ? `/api/restaurants?${queryString}` : "/api/restaurants"
+        
+        const res = await fetch(url, { cache: "no-store" })
         if (!res.ok) throw new Error("Failed to load")
-        const json = (await res.json()) as Restaurant[]
-        setData(json)
+        const json = (await res.json())
+        
+        // Handle both possible response structures
+        const restaurantData = json.data || json
+        
+        setData(restaurantData || [])
       } catch (e) {
         toast({ title: "Failed to load data", description: "Please try again later.", variant: "destructive" })
       } finally {
@@ -78,7 +102,7 @@ export default function AppShell() {
       }
     }
     run()
-  }, [])
+  }, [searchParams])
 
   // Decode initial URL params to restore state (selected, filters, center)
   useEffect(() => {
@@ -114,30 +138,99 @@ export default function AppShell() {
       locationQuery: loc ? decodeURIComponent(loc) : prev.locationQuery,
       search: q ? decodeURIComponent(q) : prev.search,
     }))
+
+    // If location query exists but no coordinates, try to find and center on city
+    if (loc && !ll) {
+      const cityName = decodeURIComponent(loc)
+      import("@/lib/cities").then(({ findCitiesByName }) => {
+        const cities = findCitiesByName(cityName)
+        if (cities.length > 0) {
+          const city = cities[0] // Use first match
+          setCenter([city.latitude, city.longitude])
+          setZoom(11) // Good zoom level for city view
+        }
+      })
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []) // only run once
 
+  // Function to consolidate similar cuisines
+  const normalizeCuisine = (cuisine: string): string => {
+    const normalized = cuisine.toLowerCase().trim()
+    
+    // American variations
+    if (normalized.includes('american') || normalized.includes('contemporary american')) {
+      return 'American'
+    }
+    // French variations
+    if (normalized.includes('french') || normalized.includes('contemporary french')) {
+      return 'French'
+    }
+    // Italian variations
+    if (normalized.includes('italian') || normalized.includes('contemporary italian')) {
+      return 'Italian'
+    }
+    // Japanese variations
+    if (normalized.includes('japanese') || normalized.includes('sushi') || normalized.includes('contemporary japanese')) {
+      return 'Japanese'
+    }
+    // Contemporary/Modern variations
+    if (normalized.includes('contemporary') || normalized.includes('modern')) {
+      return 'Contemporary'
+    }
+    // Asian variations
+    if (normalized.includes('asian') || normalized.includes('pan-asian')) {
+      return 'Asian'
+    }
+    // European variations
+    if (normalized.includes('european')) {
+      return 'European'
+    }
+    // Mediterranean variations
+    if (normalized.includes('mediterranean')) {
+      return 'Mediterranean'
+    }
+    // Seafood variations
+    if (normalized.includes('seafood') || normalized.includes('fish')) {
+      return 'Seafood'
+    }
+    
+    // Return original if no consolidation needed
+    return cuisine
+  }
+
   // Compute filtered list
   const filtered = useMemo(() => {
-    return data.filter((r) => {
+    if (!Array.isArray(data)) {
+      return []
+    }
+    
+    const result = data.filter((r) => {
       const starOk = filters.stars.includes(r.stars)
-      const cuisineOk = filters.cuisines.length === 0 || filters.cuisines.includes(r.cuisine)
+      const normalizedCuisine = normalizeCuisine(r.cuisine)
+      const cuisineOk = filters.cuisines.length === 0 || filters.cuisines.includes(normalizedCuisine)
       const priceOk = r.price_level >= filters.priceRange[0] && r.price_level <= filters.priceRange[1]
       const loc = (r.city + " " + r.country).toLowerCase()
       const locOk = !filters.locationQuery || loc.includes(filters.locationQuery.toLowerCase())
       const nameOk = !filters.search || r.name.toLowerCase().includes(filters.search.toLowerCase())
       return starOk && cuisineOk && priceOk && locOk && nameOk
     })
+    
+    return result
   }, [data, filters])
 
   const cuisines = useMemo(() => {
+    if (!Array.isArray(data)) return []
     const s = new Set<string>()
-    data.forEach((r) => s.add(r.cuisine))
+    data.forEach((r) => {
+      const normalizedCuisine = normalizeCuisine(r.cuisine)
+      s.add(normalizedCuisine)
+    })
     return Array.from(s).sort((a, b) => a.localeCompare(b))
   }, [data])
 
   const selected = useMemo(
-    () => filtered.find((r) => r.id === selectedId) || data.find((r) => r.id === selectedId) || null,
+    () => filtered.find((r) => r.id === selectedId) || (Array.isArray(data) ? data.find((r) => r.id === selectedId) : null) || null,
     [filtered, data, selectedId],
   )
 
@@ -177,12 +270,18 @@ export default function AppShell() {
 
   const resetFilters = () => setFilters(DEFAULT_FILTERS)
 
-  const onSelectRestaurant = (id: string, lat?: number, lng?: number) => {
+  const onSelectRestaurant = (id: string, lat?: number, long?: number) => {
     setSelectedId(id)
-    if (lat !== undefined && lng !== undefined) {
-      setCenter([lat, lng])
+    if (lat !== undefined && long !== undefined) {
+      setCenter([lat, long])
       setZoom(13)
     }
+  }
+
+  const onCitySelect = (city: City) => {
+    setCenter([city.latitude, city.longitude])
+    setZoom(11)
+    setFilters((f) => ({ ...f, locationQuery: city.name }))
   }
 
   const handleShare = async () => {
@@ -248,25 +347,6 @@ export default function AppShell() {
             <Share2 className="size-4 text-violet-600" />
           </Button>
 
-          {/* Mobile: open filters sheet */}
-          <Sheet open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="sm" className="lg:hidden bg-white/70">
-                <Filter className="size-4 mr-2 text-violet-600" />
-                Filters
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-[85vw] sm:w-[420px] overflow-y-auto">
-              <SheetHeader>
-                <SheetTitle>Filters</SheetTitle>
-              </SheetHeader>
-              <div className="py-4">
-                <FiltersPanel filters={filters} cuisines={cuisines} onChange={setFilters} onReset={resetFilters} />
-                <Separator className="my-4" />
-                <p className="text-xs text-zinc-500">Data is loaded from the backend.</p>
-              </div>
-            </SheetContent>
-          </Sheet>
         </div>
       </header>
 
@@ -287,14 +367,32 @@ export default function AppShell() {
             </button>
 
             <div className="p-4 border-b">
-              <FiltersPanel filters={filters} cuisines={cuisines} onChange={setFilters} onReset={resetFilters} />
+              <FiltersPanel filters={filters} cuisines={cuisines} onChange={setFilters} onReset={resetFilters} onCitySelect={onCitySelect} />
             </div>
             <div className="p-3 overflow-y-auto space-y-3 min-h-0">
-              <SearchBar
-                value={filters.search}
-                onChange={(v) => setFilters((f) => ({ ...f, search: v }))}
-                placeholder="Search by name"
-              />
+              <div className="space-y-2">
+                <SearchBar
+                  value={filters.search}
+                  onChange={(v) => setFilters((f) => ({ ...f, search: v }))}
+                  placeholder="Search restaurant names..."
+                />
+                <Button
+                  disabled={!filters.locationQuery}
+                  className={cn(
+                    "w-full",
+                    filters.locationQuery
+                      ? "bg-violet-600 hover:bg-violet-700 text-white"
+                      : "bg-white border border-gray-200 text-gray-400 cursor-not-allowed hover:bg-white"
+                  )}
+                  onClick={() => {
+                    // Optional: Add search action here if needed
+                    toast({ title: "Search applied", description: `Searching in ${filters.locationQuery}` })
+                  }}
+                >
+                  <Search className="size-4 mr-2" />
+                  Search
+                </Button>
+              </div>
               <ListPanel
                 items={filtered}
                 selectedId={selectedId}
@@ -317,6 +415,7 @@ export default function AppShell() {
               setCenter(c)
               setZoom(z)
             }}
+            isLoading={isLoading}
           />
           {!isSidebarOpen && (
             <button
@@ -332,15 +431,26 @@ export default function AppShell() {
 
           {/* Floating search and quick filters on mobile */}
           <div className="absolute left-3 right-3 top-3 z-[30] md:hidden space-y-2">
-            <div className="flex gap-2">
+            <div className="space-y-2">
               <SearchBar
                 value={filters.search}
                 onChange={(v) => setFilters((f) => ({ ...f, search: v }))}
-                placeholder="Search by name"
+                placeholder="Search restaurants..."
               />
-              <Button variant="outline" onClick={() => setIsFiltersOpen(true)} className="bg-white/80">
-                <Filter className="size-4 mr-2 text-violet-600" />
-                Filters
+              <Button
+                disabled={!filters.locationQuery}
+                className={cn(
+                  "w-full",
+                  filters.locationQuery
+                    ? "bg-violet-600 hover:bg-violet-700 text-white"
+                    : "bg-white border border-gray-200 text-gray-400 cursor-not-allowed hover:bg-white"
+                )}
+                onClick={() => {
+                  toast({ title: "Search applied", description: `Searching in ${filters.locationQuery}` })
+                }}
+              >
+                <Search className="size-4 mr-2" />
+                Search
               </Button>
             </div>
             <div className="flex gap-2 overflow-x-auto no-scrollbar">
@@ -405,11 +515,13 @@ function FiltersPanel({
   cuisines,
   onChange,
   onReset,
+  onCitySelect,
 }: {
   filters: { stars: number[]; cuisines: string[]; priceRange: [number, number]; locationQuery: string; search: string }
   cuisines: string[]
   onChange: (f: Filters) => void
   onReset: () => void
+  onCitySelect: (city: City) => void
 }) {
   return (
     <div className="space-y-4">
@@ -495,11 +607,11 @@ function FiltersPanel({
 
       <div className="space-y-2">
         <Label>Location</Label>
-        <Input
+        <CitySearch
           value={filters.locationQuery}
-          onChange={(e) => onChange({ ...filters, locationQuery: e.target.value })}
-          placeholder="City or country"
-          aria-label="Filter by city or country"
+          onChange={(v) => onChange({ ...filters, locationQuery: v })}
+          onCitySelect={onCitySelect}
+          placeholder="Search cities..."
         />
       </div>
     </div>
@@ -593,7 +705,7 @@ function RestaurantCard({ restaurant, onClose }: { restaurant: Restaurant; onClo
           >
             <X className="size-4" />
           </Button>
-          {restaurant.greenStar && (
+          {restaurant.green_star && (
             <Badge className="absolute top-2 left-2 bg-green-600 text-white">
               Green Star
             </Badge>

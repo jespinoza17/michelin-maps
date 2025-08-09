@@ -20,17 +20,17 @@ export type Restaurant = {
   name: string
   address: string
   location: string
+  city: string
+  country: string
   stars: 1 | 2 | 3
   cuisine: string
   price_level: 1 | 2 | 3 | 4
   lat: number
   lng: number
-  city: string
-  country: string
   phone?: string
   website?: string
-  michelinUrl?: string
-  greenStar: boolean
+  michelin_url?: string
+  green_star: boolean
   facilities: string[]
   description: string
 }
