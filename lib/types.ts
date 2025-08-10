@@ -2,7 +2,7 @@ export type RestaurantRaw = {
   Name: string
   Address: string
   Location: string
-  Price: string // "€€€€", "€€€", etc.
+  Price: string // "$$$$", "$$$", etc.
   Cuisine: string
   Longitude: string
   Latitude: string

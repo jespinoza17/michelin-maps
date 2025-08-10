@@ -560,10 +560,10 @@ function FiltersPanel({
             onValueChange={(v) => onChange({ ...filters, priceRange: [v[0], v[1]] as [number, number] })}
           />
           <div className="flex justify-between mt-1 text-xs text-zinc-500">
-            <span>€</span>
-            <span>€€</span>
-            <span>€€€</span>
-            <span>€€€€</span>
+            <span>$</span>
+            <span>$$</span>
+            <span>$$$</span>
+            <span>$$$$</span>
           </div>
         </div>
       </div>
@@ -631,7 +631,7 @@ function ListPanel({
                 <span className="text-zinc-400">•</span>
                 <span>{r.cuisine}</span>
                 <span className="text-zinc-400">•</span>
-                <span>{"€".repeat(Math.max(1, Math.min(4, r.price_level)))}</span>
+                <span>{"$".repeat(Math.max(1, Math.min(4, r.price_level)))}</span>
               </div>
             </div>
           </div>
@@ -689,7 +689,7 @@ function RestaurantCard({ restaurant, onClose }: { restaurant: Restaurant; onClo
             <Badge className="bg-blue-600">{restaurant.stars}★</Badge>
           </div>
           <div className="mt-2 text-sm text-zinc-700">
-            {restaurant.cuisine} • {"€".repeat(Math.max(1, Math.min(4, restaurant.price_level)))}
+            {restaurant.cuisine} • {"$".repeat(Math.max(1, Math.min(4, restaurant.price_level)))}
           </div>
           {restaurant.facilities.length > 0 && (
             <div className="mt-2 text-xs text-zinc-500">

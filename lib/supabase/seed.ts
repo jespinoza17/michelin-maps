@@ -9,8 +9,8 @@ function parseStars(award: string): 1 | 2 | 3 {
 }
 
 function parsePriceLevel(price: string): 1 | 2 | 3 | 4 {
-  const euroCount = (price.match(/€/g) || []).length
-  return Math.min(Math.max(euroCount, 1), 4) as 1 | 2 | 3 | 4
+  const dollarCount = (price.match(/\$/g) || []).length
+  return Math.min(Math.max(dollarCount, 1), 4) as 1 | 2 | 3 | 4
 }
 
 function parseLocation(location: string): { city: string; country: string } {

@@ -47,10 +47,10 @@ SELECT *,
     WHEN stars = 3 THEN 'Three Stars'
   END as award_display,
   CASE
-    WHEN price_level = 1 THEN '€'
-    WHEN price_level = 2 THEN '€€'
-    WHEN price_level = 3 THEN '€€€'
-    WHEN price_level = 4 THEN '€€€€'
+    WHEN price_level = 1 THEN '$'
+    WHEN price_level = 2 THEN '$$'
+    WHEN price_level = 3 THEN '$$$'
+    WHEN price_level = 4 THEN '$$$$'
   END as price_display
 FROM restaurants;
 
