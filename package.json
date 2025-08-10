@@ -6,7 +6,10 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "seed": "npx tsx scripts/seed.ts seed",
+    "seed:clear": "npx tsx scripts/seed.ts clear",
+    "seed:count": "npx tsx scripts/seed.ts count"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -71,6 +74,7 @@
     "@types/react-dom": "^19",
     "postcss": "^8.5",
     "tailwindcss": "^4.1.9",
+    "tsx": "^4.0.0",
     "tw-animate-css": "1.3.3",
     "typescript": "^5"
   }
