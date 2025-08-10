@@ -75,23 +75,30 @@ export default function HomePage() {
   }
 
   return (
-    <main className="min-h-dvh bg-gradient-to-b from-fuchsia-50 to-violet-50">
+    <main className="min-h-dvh bg-gradient-to-br from-blue-50 via-sky-50 to-indigo-100">
       <section className="container mx-auto px-4 flex min-h-dvh items-center justify-center">
-        <div className="w-full max-w-2xl">
+        <div className="w-full max-w-3xl">
           <h1 className="sr-only">Find Michelin restaurants</h1>
-          <div className="text-center mb-8">
-            <p className="text-2xl md:text-3xl font-semibold text-zinc-900">
-              Discover Michelin-starred restaurants worldwide
+          <div className="text-center mb-12">
+            <div className="mb-4">
+              <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 via-sky-600 to-indigo-600 bg-clip-text text-transparent">
+                Michelin Maps
+              </h2>
+              <p className="text-xl md:text-2xl font-medium text-slate-700 mt-2">
+                Discover exceptional dining worldwide
+              </p>
+            </div>
+            <p className="text-base text-slate-600 max-w-xl mx-auto">
+              Find Michelin-starred restaurants, Bib Gourmand selections, and recommended establishments in cities around the globe.
             </p>
-            <p className="mt-2 text-zinc-600">Search by city, country, or use your current location.</p>
           </div>
 
           <form
             onSubmit={onSubmit}
-            className="rounded-2xl bg-white/70 backdrop-blur border border-violet-100 p-3 shadow-sm"
+            className="rounded-3xl bg-white/80 backdrop-blur-md border border-blue-100/50 p-4 shadow-xl shadow-blue-100/20"
             aria-label="Search Michelin restaurants"
           >
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <div className="relative flex-1">
                 <CitySearch
                   value={query}
@@ -103,16 +110,16 @@ export default function HomePage() {
                     }
                   }}
                   onCitySelect={onCitySelect}
-                  placeholder="Find Michelin restaurants near me"
-                  className="h-12 text-base"
+                  placeholder="Search by city or country..."
+                  className="h-14 text-lg rounded-2xl border-slate-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
                 />
               </div>
               <Button 
                 type="submit" 
-                className={`h-12 px-6 ${
+                className={`h-14 px-8 rounded-2xl font-semibold transition-all duration-200 ${
                   selectedCity 
-                    ? "bg-violet-600 hover:bg-violet-700 text-white" 
-                    : "bg-white border border-gray-200 text-violet-600 hover:bg-gray-50"
+                    ? "bg-gradient-to-r from-blue-600 to-sky-600 hover:from-blue-700 hover:to-sky-700 text-white shadow-lg shadow-blue-200" 
+                    : "bg-white border border-slate-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
                 }`}
               >
                 Search
@@ -120,27 +127,35 @@ export default function HomePage() {
               <Button
                 type="button"
                 variant="outline"
-                className="h-12 px-3 bg-white/80"
+                className="h-14 px-4 rounded-2xl bg-white/90 border-slate-200 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200"
                 onClick={handleLocationButtonClick}
                 disabled={geoBusy}
                 aria-label="Use my location"
               >
-                <LocateFixed className="size-5 text-violet-600" />
+                <LocateFixed className="size-6 text-blue-600" />
               </Button>
             </div>
           </form>
 
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-            {["Tokyo", "Paris", "New York", "London", "Barcelona"].map((city) => (
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <p className="text-sm text-slate-500 font-medium mb-2 w-full text-center">Popular destinations</p>
+            {["Tokyo", "Paris", "New York", "London", "Barcelona", "Hong Kong"].map((city) => (
               <button
                 key={city}
                 onClick={() => router.push(`/map?cities=${encodeURIComponent(city)}`)}
-                className="text-sm rounded-full border border-violet-200 bg-white/70 px-3 py-1.5 text-zinc-700 hover:bg-violet-50"
+                className="text-sm rounded-2xl border border-blue-200/60 bg-white/80 backdrop-blur-sm px-4 py-2.5 text-slate-700 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-200 font-medium"
                 aria-label={`Search ${city}`}
               >
                 {city}
               </button>
             ))}
+          </div>
+
+          <div className="mt-12 text-center">
+            <div className="inline-flex items-center gap-2 text-sm text-slate-500">
+              <div className="w-2 h-2 bg-gradient-to-r from-blue-400 to-sky-400 rounded-full"></div>
+              <span>Powered by Michelin Guide data</span>
+            </div>
           </div>
         </div>
       </section>

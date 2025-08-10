@@ -148,7 +148,6 @@ export default function AppShell() {
           // find the most similar city with the exact name
           const city = cityResults.find((c) => c.name === cities) || cityResults[0]
           setCenter([city.latitude, city.longitude])
-          console.log('new center shell', city.latitude, city.longitude)
           setZoom(11) // Good zoom level for city view
         }
       })
@@ -269,10 +268,10 @@ export default function AppShell() {
   return (
     <div className="grid grid-rows-[auto_1fr] min-h-dvh">
       {/* Header with subtle gradient */}
-      <header className="flex items-center gap-2 px-4 md:px-6 py-3 border-b sticky top-0 z-40 bg-gradient-to-r from-fuchsia-50 to-violet-50">
-        <MapPin className="size-5 text-violet-600" aria-hidden="true" />
-        <h1 className="text-lg font-semibold tracking-tight text-zinc-900">Michelin Map</h1>
-        <Badge variant="secondary" className="ml-2 bg-violet-100 text-violet-700">
+      <header className="flex items-center gap-2 px-4 md:px-6 py-3 border-b sticky top-0 z-40 bg-gradient-to-r from-blue-50 to-sky-50">
+        <MapPin className="size-5 text-blue-600" aria-hidden="true" />
+        <h1 className="text-lg font-semibold tracking-tight text-zinc-900">Michelin Maps</h1>
+        <Badge variant="secondary" className="ml-2 bg-blue-100 text-blue-700">
           {isLoading ? "Loading..." : `${filteredCount} places`}
         </Badge>
 
@@ -286,7 +285,7 @@ export default function AppShell() {
             aria-label="Use my location"
             className="bg-white/70"
           >
-            <LocateFixed className="size-4 text-violet-600" />
+            <LocateFixed className="size-4 text-blue-600" />
           </Button>
           <Button
             variant="outline"
@@ -295,7 +294,7 @@ export default function AppShell() {
             aria-label="Copy shareable link"
             className="bg-white/70"
           >
-            <Share2 className="size-4 text-violet-600" />
+            <Share2 className="size-4 text-blue-600" />
           </Button>
 
         </div>
@@ -311,10 +310,10 @@ export default function AppShell() {
               type="button"
               onClick={() => setIsSidebarOpen(false)}
               aria-label="Hide filters"
-              className="absolute -right-3 top-6 z-20 h-8 w-8 rounded-full border border-zinc-200 bg-white shadow hover:bg-violet-50 focus:outline-none focus:ring-2 focus:ring-violet-500"
+              className="absolute -right-3 top-6 z-20 h-8 w-8 rounded-full border border-zinc-200 bg-white shadow hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
               title="Hide filters"
             >
-              <PanelLeftClose className="mx-auto size-4 text-violet-700" />
+              <PanelLeftClose className="mx-auto size-4 text-blue-700" />
             </button>
 
             <div className="p-4 border-b">
@@ -339,7 +338,7 @@ export default function AppShell() {
                   className={cn(
                     "w-full",
                     filters.locationQuery
-                      ? "bg-violet-600 hover:bg-violet-700 text-white"
+                      ? "bg-blue-600 hover:bg-blue-700 text-white"
                       : "bg-white border border-gray-200 text-gray-400 cursor-not-allowed hover:bg-white"
                   )}
                   onClick={() => {
@@ -408,7 +407,7 @@ export default function AppShell() {
                         })
                       }
                     >
-                      <Star className="size-3 mr-1 fill-yellow-400 text-yellow-400" />
+                      <Star className={cn("size-3 mr-1", filters.stars.includes(stars) ? "fill-white text-white" : "fill-blue-400 text-blue-400")} />
                       {stars}
                     </Button>
                   ))}
@@ -419,10 +418,10 @@ export default function AppShell() {
                     type="button"
                     onClick={() => setIsSidebarOpen(true)}
                     aria-label="Show filters"
-                    className="h-9 w-9 rounded-full border border-zinc-200 bg-white/80 backdrop-blur-sm shadow hover:bg-violet-50 focus:outline-none focus:ring-2 focus:ring-violet-500 flex items-center justify-center"
+                    className="h-9 w-9 rounded-full border border-zinc-200 bg-white/80 backdrop-blur-sm shadow hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center"
                     title="Show filters"
                   >
-                    <PanelLeftOpen className="size-4 text-violet-700" />
+                    <PanelLeftOpen className="size-4 text-blue-700" />
                   </button>
                 </div>
               </div>
@@ -445,7 +444,7 @@ export default function AppShell() {
                   variant={filters.stars.includes(s) ? "default" : "outline"}
                   className={cn(
                     filters.stars.includes(s)
-                      ? "bg-violet-600 hover:bg-violet-700 text-white"
+                      ? "bg-blue-600 hover:bg-blue-700 text-white"
                       : "bg-white/80 text-zinc-800",
                   )}
                   onClick={() =>
@@ -456,7 +455,7 @@ export default function AppShell() {
                     })
                   }
                 >
-                  <Star className="size-3 mr-1 fill-yellow-400 text-yellow-400" />
+                  <Star className={cn("size-3 mr-1", filters.stars.includes(s) ? "fill-white text-white" : "fill-blue-400 text-blue-400")} />
                   {s}
                 </Button>
               ))}
@@ -517,7 +516,7 @@ function FiltersPanel({
           variant="ghost"
           size="sm"
           onClick={onReset}
-          className="px-2 text-violet-700 hover:text-violet-800 hover:bg-transparent"
+          className="px-2 text-blue-700 hover:text-blue-800 hover:bg-transparent"
           aria-label="Reset filters"
         >
           Reset
@@ -542,7 +541,7 @@ function FiltersPanel({
                 aria-label={`${s} star${s > 1 ? "s" : ""}`}
               />
               <span className="text-sm flex items-center gap-1">
-                <Star className="size-3 fill-yellow-400 text-yellow-400" /> {s}
+                <Star className="size-3 fill-blue-400 text-blue-400" /> {s}
               </span>
             </label>
           ))}
@@ -614,8 +613,8 @@ function ListPanel({
           key={r.id}
           onClick={() => onSelect(r)}
           className={cn(
-            "w-full text-left rounded-md border p-3 hover:bg-violet-50/60 transition",
-            selectedId === r.id ? "border-violet-600 ring-2 ring-violet-100" : "border-zinc-200",
+            "w-full text-left rounded-md border p-3 hover:bg-blue-50/60 transition",
+            selectedId === r.id ? "border-blue-600 ring-2 ring-blue-100" : "border-zinc-200",
           )}
           aria-label={`Select ${r.name}`}
         >
@@ -627,7 +626,7 @@ function ListPanel({
               </div>
               <div className="mt-1 flex items-center gap-2 text-xs">
                 <span className="inline-flex items-center gap-1">
-                  <Star className="size-3 fill-yellow-400 text-yellow-400" /> {r.stars}
+                  <Star className="size-3 fill-blue-400 text-blue-400" /> {r.stars}
                 </span>
                 <span className="text-zinc-400">•</span>
                 <span>{r.cuisine}</span>
@@ -652,7 +651,7 @@ function RestaurantCard({ restaurant, onClose }: { restaurant: Restaurant; onClo
   const img = `/placeholder.svg?height=200&width=400&query=michelin%20star%20restaurant%20interior`
   
   return (
-    <Card className="shadow-lg border-violet-200">
+    <Card className="shadow-lg border-blue-200">
       <CardContent className="p-0">
         <div className="relative">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -687,7 +686,7 @@ function RestaurantCard({ restaurant, onClose }: { restaurant: Restaurant; onClo
                 {restaurant.address}
               </div>
             </div>
-            <Badge className="bg-violet-600">{restaurant.stars}★</Badge>
+            <Badge className="bg-blue-600">{restaurant.stars}★</Badge>
           </div>
           <div className="mt-2 text-sm text-zinc-700">
             {restaurant.cuisine} • {"€".repeat(Math.max(1, Math.min(4, restaurant.price_level)))}
@@ -715,7 +714,7 @@ function RestaurantCard({ restaurant, onClose }: { restaurant: Restaurant; onClo
                 </a>
               </Button>
             )}
-            <Button asChild size="sm" className="bg-violet-600 hover:bg-violet-700">
+            <Button asChild size="sm" className="bg-blue-600 hover:bg-blue-700">
               <a
                 href={`https://www.google.com/maps/dir/?api=1&destination=${restaurant.lat},${restaurant.lng}`}
                 target="_blank"
