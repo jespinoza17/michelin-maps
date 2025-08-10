@@ -33,8 +33,8 @@ function dbRowToRestaurant(row: any): Restaurant {
     country: row.country,
     phone: row.phone,
     website: row.website,
-    michelinUrl: row.michelin_url,
-    greenStar: row.green_star,
+    michelin_url: row.michelin_url, 
+    green_star: row.green_star,
     facilities: row.facilities || [],
     description: row.description
   }
@@ -162,9 +162,9 @@ export async function getFilterOptions() {
       supabase.from('restaurants').select('cuisine').not('cuisine', 'eq', '')
     ])
 
-    const countries = [...new Set(countriesResult.data?.map(r => r.country) || [])].sort()
-    const cities = [...new Set(citiesResult.data?.map(r => r.city) || [])].sort()
-    const cuisines = [...new Set(cuisinesResult.data?.map(r => r.cuisine) || [])].sort()
+    const countries = [...new Set(countriesResult.data?.map((r: any) => r.country) || [])].sort()
+    const cities = [...new Set(citiesResult.data?.map((r: any) => r.city) || [])].sort()
+    const cuisines = [...new Set(cuisinesResult.data?.map((r: any) => r.cuisine) || [])].sort()
 
     return { countries, cities, cuisines }
   } catch (error) {

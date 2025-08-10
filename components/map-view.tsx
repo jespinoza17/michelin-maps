@@ -75,9 +75,7 @@ export default function MapView({
   // this useEffect may be causing infinite re-renders when we move the map
   // I want this useEffect to only run when the city changes
   useEffect(() => {
-    console.log('city', city)
     if (mapRef.current) {
-      console.log('new center', center, 'new city', city)
       mapRef.current.flyTo({
         center: [center[1], center[0]], // [lng, lat]
         zoom: zoom,

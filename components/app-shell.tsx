@@ -1,6 +1,7 @@
 "use client"
 
 import dynamic from "next/dynamic"
+import Link from "next/link"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -19,8 +20,6 @@ import {
   Star,
   Filter,
   Search,
-  Share2,
-  LocateFixed,
   Phone,
   Globe,
   X,
@@ -94,6 +93,8 @@ export default function AppShell() {
         
         // Handle both possible response structures
         const restaurantData = json.data || json
+
+        console.log('restaurantData length', restaurantData.length)
         
         setData(restaurantData || [])
       } catch (e) {
@@ -114,7 +115,6 @@ export default function AppShell() {
     const cities = searchParams.get("cities")
     const q = searchParams.get("q")
     const ll = searchParams.get("ll")
-    const z = searchParams.get("z")
 
     if (ll) {
       const [latStr, lngStr] = ll.split(",")
@@ -162,6 +162,7 @@ export default function AppShell() {
       return []
     }
     
+    console.log('data length', data.length)
     const result = data.filter((r) => {
       const starOk = filters.stars.includes(r.stars)
       const priceOk = r.price_level >= filters.priceRange[0] && r.price_level <= filters.priceRange[1]
@@ -170,6 +171,8 @@ export default function AppShell() {
       const nameOk = !filters.search || r.name.toLowerCase().includes(filters.search.toLowerCase())
       return starOk && priceOk && locOk && nameOk
     })
+
+    console.log('result length', result.length)
     
     return result
   }, [data, filters])
@@ -234,34 +237,6 @@ export default function AppShell() {
     setSearchInputValue("")
   }
 
-  const handleShare = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href)
-      toast({
-        title: "Link copied",
-        description: "Share this URL with others to show your current view and selection.",
-      })
-    } catch {
-      toast({ title: "Could not copy", description: "Please copy the URL from your browser.", variant: "destructive" })
-    }
-  }
-
-  const useMyLocation = () => {
-    if (!navigator.geolocation) {
-      toast({ title: "Geolocation not supported", variant: "destructive" })
-      return
-    }
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const { latitude, longitude } = pos.coords
-        setCenter([latitude, longitude])
-        setZoom(12)
-      },
-      () => {
-        toast({ title: "Location denied", description: "We couldn't access your location.", variant: "destructive" })
-      },
-    )
-  }
 
   const filteredCount = filtered.length
 
@@ -270,34 +245,61 @@ export default function AppShell() {
       {/* Header with subtle gradient */}
       <header className="flex items-center gap-2 px-4 md:px-6 py-3 border-b sticky top-0 z-40 bg-gradient-to-r from-blue-50 to-sky-50">
         <MapPin className="size-5 text-blue-600" aria-hidden="true" />
-        <h1 className="text-lg font-semibold tracking-tight text-zinc-900">Michelin Maps</h1>
+        <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <h1 className="text-lg font-semibold tracking-tight text-zinc-900">Michelin Maps</h1>
+        </Link>
         <Badge variant="secondary" className="ml-2 bg-blue-100 text-blue-700">
           {isLoading ? "Loading..." : `${filteredCount} places`}
         </Badge>
 
-        <div className="ml-auto flex items-center gap-2">
-          {/* Desktop: toggle sidebar */}
-
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={useMyLocation}
-            aria-label="Use my location"
-            className="bg-white/70"
-          >
-            <LocateFixed className="size-4 text-blue-600" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleShare}
-            aria-label="Copy shareable link"
-            className="bg-white/70"
-          >
-            <Share2 className="size-4 text-blue-600" />
-          </Button>
-
+        <div className="hidden lg:flex items-center gap-3 mx-4">
+          <CitySearch
+            value={searchInputValue}
+            onChange={setSearchInputValue}
+            onCitySelect={onCitySelect}
+            placeholder="Search cities..."
+            className="w-64"
+          />
+          
+          <div className="flex gap-2">
+            {[1, 2, 3].map((stars) => (
+              <Button
+                key={stars}
+                size="sm"
+                variant={filters.stars.includes(stars) ? "default" : "outline"}
+                className={cn(
+                  filters.stars.includes(stars)
+                    ? "bg-blue-600 hover:bg-blue-700 text-white"
+                    : "bg-white text-zinc-800",
+                )}
+                onClick={() =>
+                  setFilters((f) => {
+                    const included = f.stars.includes(stars)
+                    const nextStars = included ? f.stars.filter((x) => x !== stars) : [...f.stars, stars]
+                    return { ...f, stars: nextStars.length ? nextStars : [stars] }
+                  })
+                }
+              >
+                <Star className={cn("size-3 mr-1", filters.stars.includes(stars) ? "fill-white text-white" : "fill-blue-400 text-blue-400")} />
+                {stars}
+              </Button>
+            ))}
+          </div>
         </div>
+
+        <div className="ml-auto">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            aria-label={isSidebarOpen ? "Hide filters" : "Show filters"}
+            className="bg-white/70 gap-2"
+          >
+            <Filter className="size-4 text-blue-600" />
+            Filters
+          </Button>
+        </div>
+
       </header>
 
       {/* Content */}
@@ -310,7 +312,7 @@ export default function AppShell() {
               type="button"
               onClick={() => setIsSidebarOpen(false)}
               aria-label="Hide filters"
-              className="absolute -right-3 top-6 z-20 h-8 w-8 rounded-full border border-zinc-200 bg-white shadow hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="absolute right-0 top-10 translate-x-1/2 z-30 h-8 w-8 rounded-full border border-zinc-200 bg-white shadow hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
               title="Hide filters"
             >
               <PanelLeftClose className="mx-auto size-4 text-blue-700" />
@@ -379,62 +381,29 @@ export default function AppShell() {
           />
           {!isSidebarOpen && (
             <>
-              {/* Floating search and star filters on desktop when minimized */}
-              <div className="hidden lg:block absolute left-3 top-3 z-30 w-80 space-y-3">
-                <CitySearch
-                  value={searchInputValue}
-                  onChange={setSearchInputValue}
-                  onCitySelect={onCitySelect}
-                  placeholder="Search cities..."
-                />
-                
-                <div className="flex gap-2">
-                  {[1, 2, 3].map((stars) => (
-                    <Button
-                      key={stars}
-                      size="sm"
-                      variant={filters.stars.includes(stars) ? "default" : "outline"}
-                      className={cn(
-                        filters.stars.includes(stars)
-                          ? "bg-violet-600 hover:bg-violet-700 text-white"
-                          : "bg-white/80 text-zinc-800",
-                      )}
-                      onClick={() =>
-                        setFilters((f) => {
-                          const included = f.stars.includes(stars)
-                          const nextStars = included ? f.stars.filter((x) => x !== stars) : [...f.stars, stars]
-                          return { ...f, stars: nextStars.length ? nextStars : [stars] }
-                        })
-                      }
-                    >
-                      <Star className={cn("size-3 mr-1", filters.stars.includes(stars) ? "fill-white text-white" : "fill-blue-400 text-blue-400")} />
-                      {stars}
-                    </Button>
-                  ))}
-                </div>
-                
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    onClick={() => setIsSidebarOpen(true)}
-                    aria-label="Show filters"
-                    className="h-9 w-9 rounded-full border border-zinc-200 bg-white/80 backdrop-blur-sm shadow hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center"
-                    title="Show filters"
-                  >
-                    <PanelLeftOpen className="size-4 text-blue-700" />
-                  </button>
-                </div>
+              {/* Show filters button when panel is closed (desktop only) */}
+              <div className="hidden lg:block absolute left-3 top-3 z-30">
+                <button
+                  type="button"
+                  onClick={() => setIsSidebarOpen(true)}
+                  aria-label="Show filters"
+                  className="h-9 w-9 rounded-full border border-zinc-200 bg-white/80 backdrop-blur-sm shadow hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center"
+                  title="Show filters"
+                >
+                  <PanelLeftOpen className="size-4 text-blue-700" />
+                </button>
               </div>
             </>
           )}
 
           {/* Floating search and quick filters on mobile */}
-          <div className="absolute left-3 right-3 top-3 z-[30] md:hidden space-y-2">
+          <div className="absolute left-3 right-3 top-3 z-[30] md:hidden space-y-4">
             <CitySearch
               value={searchInputValue}
               onChange={setSearchInputValue}
               onCitySelect={onCitySelect}
               placeholder="Search cities..."
+              className="bg-white/80 backdrop-blur-sm w-[80%]"
             />
             <div className="flex gap-2 overflow-x-auto no-scrollbar">
               {[1, 2, 3].map((s) => (
@@ -516,7 +485,7 @@ function FiltersPanel({
           variant="ghost"
           size="sm"
           onClick={onReset}
-          className="px-2 text-blue-700 hover:text-blue-800 hover:bg-transparent"
+          className="px-2 text-blue-700 hover:text-blue-800 hover:bg-transparent mt-1"
           aria-label="Reset filters"
         >
           Reset

@@ -5,13 +5,12 @@ import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { LocateFixed } from "lucide-react"
+import { Globe } from "lucide-react"
 import CitySearch from "@/components/city-search"
 import type { City } from "@/lib/cities"
 
 export default function HomePage() {
   const [query, setQuery] = useState("")
-  const [geoBusy, setGeoBusy] = useState(false)
   const [selectedCity, setSelectedCity] = useState<City | null>(null)
   const router = useRouter()
 
@@ -28,7 +27,6 @@ export default function HomePage() {
       return
     }
     try {
-      setGeoBusy(true)
       await new Promise<void>((resolve) => {
         navigator.geolocation.getCurrentPosition(
           (pos) => {
@@ -44,12 +42,8 @@ export default function HomePage() {
         )
       })
     } finally {
-      setGeoBusy(false)
+      // No longer using geoBusy state
     }
-  }
-
-  async function handleLocationButtonClick() {
-    await goToMapWithLocation()
   }
 
   function onCitySelect(city: City) {
@@ -128,11 +122,10 @@ export default function HomePage() {
                 type="button"
                 variant="outline"
                 className="h-14 px-4 rounded-2xl bg-white/90 border-slate-200 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200"
-                onClick={handleLocationButtonClick}
-                disabled={geoBusy}
-                aria-label="Use my location"
+                onClick={() => router.push('/map')}
+                aria-label="Go to map"
               >
-                <LocateFixed className="size-6 text-blue-600" />
+                <Globe className="size-6 text-blue-600" />
               </Button>
             </div>
           </form>
