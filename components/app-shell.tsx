@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+// import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
@@ -59,6 +59,7 @@ export default function AppShell() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false) // desktop sidebar
   const [center, setCenter] = useState<[number, number]>([39.8, -98.6])
   const [zoom, setZoom] = useState<number>(2)
+  const [searchInputValue, setSearchInputValue] = useState("")
 
   const router = useRouter()
   const pathname = usePathname()
@@ -110,7 +111,7 @@ export default function AppShell() {
     const stars = searchParams.get("s")
     const cuisines = searchParams.get("c")
     const price = searchParams.get("p")
-    const loc = searchParams.get("l")
+    const cities = searchParams.get("cities")
     const q = searchParams.get("q")
     const ll = searchParams.get("ll")
     const z = searchParams.get("z")
@@ -121,7 +122,7 @@ export default function AppShell() {
       const lng = Number.parseFloat(lngStr)
       if (Number.isFinite(lat) && Number.isFinite(lng)) {
         setCenter([lat, lng])
-        setZoom(z ? Math.max(2, Math.min(18, Number.parseInt(z, 10))) : 12)
+        setZoom(12)
       }
     }
 
@@ -133,19 +134,19 @@ export default function AppShell() {
             .map((n) => Number.parseInt(n, 10))
             .filter((n) => [1, 2, 3].includes(n))
         : prev.stars,
-      cuisines: cuisines ? cuisines.split(",").map(decodeURIComponent) : prev.cuisines,
+      cuisines: cuisines ? cuisines.split(",") : prev.cuisines,
       priceRange: price ? (price.split("-").map((n) => Number.parseInt(n, 10)) as [number, number]) : prev.priceRange,
-      locationQuery: loc ? decodeURIComponent(loc) : prev.locationQuery,
-      search: q ? decodeURIComponent(q) : prev.search,
+      locationQuery: cities || prev.locationQuery,
+      search: q || prev.search,
     }))
 
     // If location query exists but no coordinates, try to find and center on city
-    if (loc && !ll) {
-      const cityName = decodeURIComponent(loc)
+    if (cities && !ll) {
       import("@/lib/cities").then(({ findCitiesByName }) => {
-        const cities = findCitiesByName(cityName)
-        if (cities.length > 0) {
-          const city = cities[0] // Use first match
+        const cityResults = findCitiesByName(cities)
+        if (cityResults.length > 0) {
+          // find the most similar city with the exact name
+          const city = cityResults.find((c) => c.name === cities) || cityResults[0]
           setCenter([city.latitude, city.longitude])
           setZoom(11) // Good zoom level for city view
         }
@@ -154,50 +155,6 @@ export default function AppShell() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []) // only run once
 
-  // Function to consolidate similar cuisines
-  const normalizeCuisine = (cuisine: string): string => {
-    const normalized = cuisine.toLowerCase().trim()
-    
-    // American variations
-    if (normalized.includes('american') || normalized.includes('contemporary american')) {
-      return 'American'
-    }
-    // French variations
-    if (normalized.includes('french') || normalized.includes('contemporary french')) {
-      return 'French'
-    }
-    // Italian variations
-    if (normalized.includes('italian') || normalized.includes('contemporary italian')) {
-      return 'Italian'
-    }
-    // Japanese variations
-    if (normalized.includes('japanese') || normalized.includes('sushi') || normalized.includes('contemporary japanese')) {
-      return 'Japanese'
-    }
-    // Contemporary/Modern variations
-    if (normalized.includes('contemporary') || normalized.includes('modern')) {
-      return 'Contemporary'
-    }
-    // Asian variations
-    if (normalized.includes('asian') || normalized.includes('pan-asian')) {
-      return 'Asian'
-    }
-    // European variations
-    if (normalized.includes('european')) {
-      return 'European'
-    }
-    // Mediterranean variations
-    if (normalized.includes('mediterranean')) {
-      return 'Mediterranean'
-    }
-    // Seafood variations
-    if (normalized.includes('seafood') || normalized.includes('fish')) {
-      return 'Seafood'
-    }
-    
-    // Return original if no consolidation needed
-    return cuisine
-  }
 
   // Compute filtered list
   const filtered = useMemo(() => {
@@ -207,27 +164,16 @@ export default function AppShell() {
     
     const result = data.filter((r) => {
       const starOk = filters.stars.includes(r.stars)
-      const normalizedCuisine = normalizeCuisine(r.cuisine)
-      const cuisineOk = filters.cuisines.length === 0 || filters.cuisines.includes(normalizedCuisine)
       const priceOk = r.price_level >= filters.priceRange[0] && r.price_level <= filters.priceRange[1]
       const loc = (r.city + " " + r.country).toLowerCase()
       const locOk = !filters.locationQuery || loc.includes(filters.locationQuery.toLowerCase())
       const nameOk = !filters.search || r.name.toLowerCase().includes(filters.search.toLowerCase())
-      return starOk && cuisineOk && priceOk && locOk && nameOk
+      return starOk && priceOk && locOk && nameOk
     })
     
     return result
   }, [data, filters])
 
-  const cuisines = useMemo(() => {
-    if (!Array.isArray(data)) return []
-    const s = new Set<string>()
-    data.forEach((r) => {
-      const normalizedCuisine = normalizeCuisine(r.cuisine)
-      s.add(normalizedCuisine)
-    })
-    return Array.from(s).sort((a, b) => a.localeCompare(b))
-  }, [data])
 
   const selected = useMemo(
     () => filtered.find((r) => r.id === selectedId) || (Array.isArray(data) ? data.find((r) => r.id === selectedId) : null) || null,
@@ -251,13 +197,13 @@ export default function AppShell() {
       if (f.stars.length && f.stars.length < 3) params.set("s", f.stars.join(","))
 
       params.delete("c")
-      if (f.cuisines.length) params.set("c", f.cuisines.map(encodeURIComponent).join(","))
+      if (f.cuisines.length) params.set("c", f.cuisines.join(","))
 
       params.delete("p")
       if (!(f.priceRange[0] === 1 && f.priceRange[1] === 4)) params.set("p", `${f.priceRange[0]}-${f.priceRange[1]}`)
 
-      params.delete("l")
-      if (f.locationQuery) params.set("l", encodeURIComponent(f.locationQuery))
+      params.delete("cities")
+      if (f.locationQuery) params.set("cities", f.locationQuery)
 
       router.replace(`${pathname}?${params.toString()}`)
     },
@@ -268,7 +214,10 @@ export default function AppShell() {
     pushState()
   }, [filters, selectedId, pushState])
 
-  const resetFilters = () => setFilters(DEFAULT_FILTERS)
+  const resetFilters = () => {
+    setFilters(DEFAULT_FILTERS)
+    setSearchInputValue("")
+  }
 
   const onSelectRestaurant = (id: string, lat?: number, long?: number) => {
     setSelectedId(id)
@@ -282,6 +231,7 @@ export default function AppShell() {
     setCenter([city.latitude, city.longitude])
     setZoom(11)
     setFilters((f) => ({ ...f, locationQuery: city.name }))
+    setSearchInputValue("")
   }
 
   const handleShare = async () => {
@@ -351,26 +301,33 @@ export default function AppShell() {
       </header>
 
       {/* Content */}
-      <div className={cn("grid grid-cols-1 min-h-0", isSidebarOpen ? "lg:grid-cols-[400px_1fr]" : "lg:grid-cols-1")}>
+      <div className={cn("grid grid-cols-1 h-[calc(100vh-56px)] md:h-[calc(100vh-64px)]", isSidebarOpen ? "lg:grid-cols-[400px_1fr]" : "lg:grid-cols-1")}>
         {/* Sidebar (Desktop) */}
         {isSidebarOpen && (
-          <aside className="hidden lg:flex relative flex-col border-r bg-white min-h-0">
+          <aside className="hidden lg:flex relative flex-col border-r bg-white h-full overflow-hidden">
             {/* Collapse handle on the right edge of the panel (ChatGPT-style) */}
             <button
               type="button"
               onClick={() => setIsSidebarOpen(false)}
               aria-label="Hide filters"
-              className="absolute -right-3 top-1/2 -translate-y-1/2 z-20 h-8 w-8 rounded-full border border-zinc-200 bg-white shadow hover:bg-violet-50 focus:outline-none focus:ring-2 focus:ring-violet-500"
+              className="absolute -right-3 top-6 z-20 h-8 w-8 rounded-full border border-zinc-200 bg-white shadow hover:bg-violet-50 focus:outline-none focus:ring-2 focus:ring-violet-500"
               title="Hide filters"
             >
               <PanelLeftClose className="mx-auto size-4 text-violet-700" />
             </button>
 
             <div className="p-4 border-b">
-              <FiltersPanel filters={filters} cuisines={cuisines} onChange={setFilters} onReset={resetFilters} onCitySelect={onCitySelect} />
+              <FiltersPanel 
+                filters={filters} 
+                onChange={setFilters} 
+                onReset={resetFilters} 
+                onCitySelect={onCitySelect}
+                searchInputValue={searchInputValue}
+                onSearchInputChange={setSearchInputValue}
+              />
             </div>
-            <div className="p-3 overflow-y-auto space-y-3 min-h-0">
-              <div className="space-y-2">
+            <div className="flex flex-col min-h-0">
+              <div className="p-3 border-b space-y-2">
                 <SearchBar
                   value={filters.search}
                   onChange={(v) => setFilters((f) => ({ ...f, search: v }))}
@@ -393,12 +350,14 @@ export default function AppShell() {
                   Search
                 </Button>
               </div>
-              <ListPanel
-                items={filtered}
-                selectedId={selectedId}
-                onSelect={(r) => onSelectRestaurant(r.id, r.lat, r.lng)}
-                isLoading={isLoading}
-              />
+              <div className="flex-1 overflow-y-auto p-3 min-h-0">
+                <ListPanel
+                  items={filtered}
+                  selectedId={selectedId}
+                  onSelect={(r) => onSelectRestaurant(r.id, r.lat, r.lng)}
+                  isLoading={isLoading}
+                />
+              </div>
             </div>
           </aside>
         )}
@@ -418,41 +377,64 @@ export default function AppShell() {
             isLoading={isLoading}
           />
           {!isSidebarOpen && (
-            <button
-              type="button"
-              onClick={() => setIsSidebarOpen(true)}
-              aria-label="Show filters"
-              className="hidden lg:flex items-center justify-center absolute left-3 top-1/2 -translate-y-1/2 z-30 h-9 w-9 rounded-full border border-zinc-200 bg-white shadow hover:bg-violet-50 focus:outline-none focus:ring-2 focus:ring-violet-500"
-              title="Show filters"
-            >
-              <PanelLeftOpen className="size-4 text-violet-700" />
-            </button>
+            <>
+              {/* Floating search and star filters on desktop when minimized */}
+              <div className="hidden lg:block absolute left-3 top-3 z-30 w-80 space-y-3">
+                <CitySearch
+                  value={searchInputValue}
+                  onChange={setSearchInputValue}
+                  onCitySelect={onCitySelect}
+                  placeholder="Search cities..."
+                />
+                
+                <div className="flex gap-2">
+                  {[1, 2, 3].map((stars) => (
+                    <Button
+                      key={stars}
+                      size="sm"
+                      variant={filters.stars.includes(stars) ? "default" : "outline"}
+                      className={cn(
+                        filters.stars.includes(stars)
+                          ? "bg-violet-600 hover:bg-violet-700 text-white"
+                          : "bg-white/80 text-zinc-800",
+                      )}
+                      onClick={() =>
+                        setFilters((f) => {
+                          const included = f.stars.includes(stars)
+                          const nextStars = included ? f.stars.filter((x) => x !== stars) : [...f.stars, stars]
+                          return { ...f, stars: nextStars.length ? nextStars : [stars] }
+                        })
+                      }
+                    >
+                      <Star className="size-3 mr-1 fill-yellow-400 text-yellow-400" />
+                      {stars}
+                    </Button>
+                  ))}
+                </div>
+                
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setIsSidebarOpen(true)}
+                    aria-label="Show filters"
+                    className="h-9 w-9 rounded-full border border-zinc-200 bg-white/80 backdrop-blur-sm shadow hover:bg-violet-50 focus:outline-none focus:ring-2 focus:ring-violet-500 flex items-center justify-center"
+                    title="Show filters"
+                  >
+                    <PanelLeftOpen className="size-4 text-violet-700" />
+                  </button>
+                </div>
+              </div>
+            </>
           )}
 
           {/* Floating search and quick filters on mobile */}
           <div className="absolute left-3 right-3 top-3 z-[30] md:hidden space-y-2">
-            <div className="space-y-2">
-              <SearchBar
-                value={filters.search}
-                onChange={(v) => setFilters((f) => ({ ...f, search: v }))}
-                placeholder="Search restaurants..."
-              />
-              <Button
-                disabled={!filters.locationQuery}
-                className={cn(
-                  "w-full",
-                  filters.locationQuery
-                    ? "bg-violet-600 hover:bg-violet-700 text-white"
-                    : "bg-white border border-gray-200 text-gray-400 cursor-not-allowed hover:bg-white"
-                )}
-                onClick={() => {
-                  toast({ title: "Search applied", description: `Searching in ${filters.locationQuery}` })
-                }}
-              >
-                <Search className="size-4 mr-2" />
-                Search
-              </Button>
-            </div>
+            <CitySearch
+              value={searchInputValue}
+              onChange={setSearchInputValue}
+              onCitySelect={onCitySelect}
+              placeholder="Search cities..."
+            />
             <div className="flex gap-2 overflow-x-auto no-scrollbar">
               {[1, 2, 3].map((s) => (
                 <Button
@@ -512,29 +494,28 @@ function SearchBar({
 
 function FiltersPanel({
   filters,
-  cuisines,
   onChange,
   onReset,
   onCitySelect,
+  searchInputValue,
+  onSearchInputChange,
 }: {
   filters: { stars: number[]; cuisines: string[]; priceRange: [number, number]; locationQuery: string; search: string }
-  cuisines: string[]
   onChange: (f: Filters) => void
   onReset: () => void
   onCitySelect: (city: City) => void
+  searchInputValue: string
+  onSearchInputChange: (value: string) => void
 }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="font-medium">Filters</h2>
-      </div>
-      {/* Reset under the heading on the left */}
-      <div>
         <Button
           variant="ghost"
           size="sm"
           onClick={onReset}
-          className="px-0 text-violet-700 hover:text-violet-800 hover:bg-transparent"
+          className="px-2 text-violet-700 hover:text-violet-800 hover:bg-transparent"
           aria-label="Reset filters"
         >
           Reset
@@ -566,25 +547,6 @@ function FiltersPanel({
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label>Cuisine</Label>
-        <div className="grid grid-cols-2 gap-2">
-          {cuisines.map((c) => (
-            <label key={c} className="flex items-center gap-2">
-              <Checkbox
-                checked={filters.cuisines.includes(c)}
-                onCheckedChange={(checked) => {
-                  onChange({
-                    ...filters,
-                    cuisines: checked ? [...filters.cuisines, c] : filters.cuisines.filter((x) => x !== c),
-                  })
-                }}
-              />
-              <span className="text-sm">{c}</span>
-            </label>
-          ))}
-        </div>
-      </div>
 
       <div className="space-y-2">
         <Label>Price</Label>
@@ -608,8 +570,8 @@ function FiltersPanel({
       <div className="space-y-2">
         <Label>Location</Label>
         <CitySearch
-          value={filters.locationQuery}
-          onChange={(v) => onChange({ ...filters, locationQuery: v })}
+          value={searchInputValue}
+          onChange={onSearchInputChange}
           onCitySelect={onCitySelect}
           placeholder="Search cities..."
         />
@@ -684,6 +646,7 @@ function ListPanel({
 }
 
 function RestaurantCard({ restaurant, onClose }: { restaurant: Restaurant; onClose: () => void }) {
+  // TODO: get image from restaurant.image for all restaurants
   const img = `/placeholder.svg?height=200&width=400&query=michelin%20star%20restaurant%20interior`
   
   return (

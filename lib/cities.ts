@@ -155,7 +155,8 @@ export const CITIES: City[] = [
   },
   {
     "name": "Abu Dhabi",
-    "fullName": "Abu Dhabi",
+    "country": "United Arab Emirates",
+    "fullName": "Abu Dhabi, United Arab Emirates",
     "latitude": 24.473157299999997,
     "longitude": 54.410464870833344,
     "restaurantCount": 48
@@ -12186,6 +12187,7 @@ export const CITIES: City[] = [
   },
   {
     "name": "Dubai",
+    "country": "United Arab Emirates",
     "fullName": "Dubai",
     "latitude": 25.16771099747899,
     "longitude": 55.230240013445375,
@@ -23481,7 +23483,8 @@ export const CITIES: City[] = [
   },
   {
     "name": "Luxembourg",
-    "fullName": "Luxembourg",
+    "country": "Luxembourg",
+    "fullName": "Luxembourg",   
     "latitude": 49.613469273684224,
     "longitude": 6.129123,
     "restaurantCount": 19
@@ -23608,6 +23611,7 @@ export const CITIES: City[] = [
   },
   {
     "name": "Macau",
+    "country": "China",
     "fullName": "Macau",
     "latitude": 22.163891829629627,
     "longitude": 113.55500582222223,
@@ -38863,6 +38867,7 @@ export const CITIES: City[] = [
   },
   {
     "name": "Singapore",
+    "country": "Singapore",
     "fullName": "Singapore",
     "latitude": 1.3042320284280933,
     "longitude": 103.83451151973237,

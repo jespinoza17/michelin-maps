@@ -39,7 +39,6 @@ export default function CitySearch({ value, onChange, onCitySelect, placeholder,
   }
 
   const handleCitySelect = (city: City) => {
-    onChange(city.name)
     onCitySelect(city)
     setIsOpen(false)
     setSelectedIndex(-1)

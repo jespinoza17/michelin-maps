@@ -18,7 +18,7 @@ export default function HomePage() {
   async function goToMapWithLocation(city?: City) {
     // If a city is provided, use its coordinates instead of geolocation
     if (city) {
-      router.push(`/map?ll=${city.latitude},${city.longitude}&l=${encodeURIComponent(city.name)}&cities=${encodeURIComponent(city.name)}&z=11`)
+      router.push(`/map?ll=${city.latitude},${city.longitude}&cities=${encodeURIComponent(city.name)}&z=11`)
       return
     }
 
@@ -67,10 +67,10 @@ export default function HomePage() {
     }
     // If a city was selected, use its coordinates and location with cities parameter for API
     if (selectedCity) {
-      router.push(`/map?ll=${selectedCity.latitude},${selectedCity.longitude}&l=${encodeURIComponent(selectedCity.name)}&cities=${encodeURIComponent(selectedCity.name)}&z=11`)
+      router.push(`/map?ll=${selectedCity.latitude},${selectedCity.longitude}&cities=${encodeURIComponent(selectedCity.name)}&z=11`)
     } else {
       // Treat input as a city/country search with cities parameter
-      router.push(`/map?l=${encodeURIComponent(q)}&cities=${encodeURIComponent(q)}`)
+      router.push(`/map?cities=${encodeURIComponent(q)}`)
     }
   }
 
@@ -134,7 +134,7 @@ export default function HomePage() {
             {["Tokyo", "Paris", "New York", "London", "Barcelona"].map((city) => (
               <button
                 key={city}
-                onClick={() => router.push(`/map?l=${encodeURIComponent(city)}&cities=${encodeURIComponent(city)}`)}
+                onClick={() => router.push(`/map?cities=${encodeURIComponent(city)}`)}
                 className="text-sm rounded-full border border-violet-200 bg-white/70 px-3 py-1.5 text-zinc-700 hover:bg-violet-50"
                 aria-label={`Search ${city}`}
               >

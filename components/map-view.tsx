@@ -69,21 +69,13 @@ export default function MapView({
   }, [onMove])
 
   const positions = useMemo(() => {
-    console.log('MapView received restaurants:', restaurants.length, restaurants.slice(0, 2))
-    
     const validRestaurants = restaurants.filter((r) => {
       const hasCoords = r.lat && r.lng
       const isFinite = Number.isFinite(r.lat) && Number.isFinite(r.lng)
       const isValid = hasCoords && isFinite
       
-      if (!isValid) {
-        console.log('Invalid restaurant coords:', r.name, r.lat, r.lng)
-      }
-      
       return isValid
     })
-    
-    console.log(`Filtered ${restaurants.length} restaurants to ${validRestaurants.length} valid ones`)
     
     return validRestaurants.map((r) => ({ ...r }))
   }, [restaurants])
