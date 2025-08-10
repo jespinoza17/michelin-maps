@@ -2,11 +2,12 @@
 
 import Map, { Marker, NavigationControl, GeolocateControl } from "react-map-gl/mapbox"
 import type { Restaurant } from "@/lib/types"
-import { useMemo, useCallback } from "react"
+import { useMemo, useCallback, useRef, useEffect } from "react"
 import 'mapbox-gl/dist/mapbox-gl.css'
 
 type Props = {
   restaurants?: Restaurant[]
+  city?: string
   center?: [number, number]
   zoom?: number
   selectedId?: string
@@ -53,6 +54,7 @@ function createStarMarker(stars: number, selected: boolean) {
 
 export default function MapView({
   restaurants = [],
+  city,
   center = [39.8, -98.6],
   zoom = 2,
   selectedId,
@@ -61,12 +63,28 @@ export default function MapView({
   isLoading = false,
 }: Props) {
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
+  const mapRef = useRef<any>(null)
 
   const handleMove = useCallback((evt: any) => {
     const { longitude, latitude } = evt.viewState
     const { zoom: newZoom } = evt.viewState
     onMove?.([latitude, longitude], newZoom)
   }, [onMove])
+
+  // Update map view when center or zoom props change
+  // this useEffect may be causing infinite re-renders when we move the map
+  // I want this useEffect to only run when the city changes
+  useEffect(() => {
+    console.log('city', city)
+    if (mapRef.current) {
+      console.log('new center', center, 'new city', city)
+      mapRef.current.flyTo({
+        center: [center[1], center[0]], // [lng, lat]
+        zoom: zoom,
+        duration: 1000
+      })
+    }
+  }, [city])
 
   const positions = useMemo(() => {
     const validRestaurants = restaurants.filter((r) => {
@@ -96,6 +114,7 @@ export default function MapView({
   return (
     <div className="w-full h-[calc(100dvh-56px)] md:h-[calc(100dvh-64px)] relative" suppressHydrationWarning>
       <Map
+        ref={mapRef}
         mapboxAccessToken={mapboxToken}
         initialViewState={{
           longitude: center[1],

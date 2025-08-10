@@ -148,6 +148,7 @@ export default function AppShell() {
           // find the most similar city with the exact name
           const city = cityResults.find((c) => c.name === cities) || cityResults[0]
           setCenter([city.latitude, city.longitude])
+          console.log('new center shell', city.latitude, city.longitude)
           setZoom(11) // Good zoom level for city view
         }
       })
@@ -366,6 +367,7 @@ export default function AppShell() {
         <div className="relative">
           <MapView
             restaurants={filtered}
+            city={filters.locationQuery}
             center={center}
             zoom={zoom}
             selectedId={selectedId ?? undefined}
