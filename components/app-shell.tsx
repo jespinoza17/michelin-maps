@@ -93,8 +93,6 @@ export default function AppShell() {
         
         // Handle both possible response structures
         const restaurantData = json.data || json
-
-        console.log('restaurantData length', restaurantData.length)
         
         setData(restaurantData || [])
       } catch (e) {
@@ -162,7 +160,6 @@ export default function AppShell() {
       return []
     }
     
-    console.log('data length', data.length)
     const result = data.filter((r) => {
       const starOk = filters.stars.includes(r.stars)
       const priceOk = r.price_level >= filters.priceRange[0] && r.price_level <= filters.priceRange[1]
@@ -172,8 +169,6 @@ export default function AppShell() {
       return starOk && priceOk && locOk && nameOk
     })
 
-    console.log('result length', result.length)
-    
     return result
   }, [data, filters])
 
@@ -243,16 +238,34 @@ export default function AppShell() {
   return (
     <div className="grid grid-rows-[auto_1fr] min-h-dvh">
       {/* Header with subtle gradient */}
-      <header className="flex items-center gap-2 px-4 md:px-6 py-3 border-b sticky top-0 z-40 bg-gradient-to-r from-blue-50 to-sky-50">
-        <MapPin className="size-5 text-blue-600" aria-hidden="true" />
-        <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-          <h1 className="text-lg font-semibold tracking-tight text-zinc-900">Michelin Maps</h1>
-        </Link>
-        <Badge variant="secondary" className="ml-2 bg-blue-100 text-blue-700">
-          {isLoading ? "Loading..." : `${filteredCount} places`}
-        </Badge>
+      <header className="grid grid-cols-[1fr_auto] lg:grid-cols-3 items-center gap-2 lg:gap-4 px-3 lg:px-6 py-2 lg:py-3 border-b sticky top-0 z-40 bg-gradient-to-r from-blue-50 to-sky-50">
+        {/* Left section */}
+        <div className="flex items-center gap-1 lg:gap-2 min-w-0 overflow-hidden">
+          <MapPin className="size-4 lg:size-5 text-blue-600 flex-shrink-0" aria-hidden="true" />
+          <Link href="/" className="flex items-center gap-1 lg:gap-2 hover:opacity-80 transition-opacity min-w-0">
+            <h1 className="text-sm lg:text-lg font-semibold tracking-tight text-zinc-900 truncate">Michelin Maps</h1>
+          </Link>
+          {filters.locationQuery && (
+            <span className="text-xs lg:text-sm text-zinc-600 font-medium whitespace-nowrap">
+              {filters.locationQuery}
+            </span>
+          )}
+          <div className="hidden lg:block">
+            <Badge variant="secondary" className="ml-2 bg-blue-100 text-blue-700 whitespace-nowrap">
+              {isLoading ? "Loading..." : `${filteredCount} places`}
+            </Badge>
+          </div>
+        </div>
+        
+        {/* Mobile badge section */}
+        <div className="lg:hidden">
+          <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 whitespace-nowrap">
+            {isLoading ? "Loading..." : `${filteredCount} places`}
+          </Badge>
+        </div>
 
-        <div className="hidden lg:flex items-center gap-3 mx-4">
+        {/* Center section - Search bar */}
+        <div className="hidden lg:flex items-center justify-center gap-3">
           <CitySearch
             value={searchInputValue}
             onChange={setSearchInputValue}
@@ -287,7 +300,8 @@ export default function AppShell() {
           </div>
         </div>
 
-        <div className="ml-auto">
+        {/* Right section */}
+        <div className="hidden lg:flex justify-end">
           <Button
             variant="outline"
             size="sm"
