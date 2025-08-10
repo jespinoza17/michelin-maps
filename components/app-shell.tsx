@@ -264,8 +264,11 @@ export default function AppShell() {
           </Badge>
         </div>
 
-        {/* Center section - Search bar */}
-        <div className="hidden lg:flex items-center justify-center gap-3">
+        {/* Center section - Empty for now */}
+        <div className="hidden lg:block"></div>
+
+        {/* Right section */}
+        <div className="hidden lg:flex justify-end items-center gap-3">
           <CitySearch
             value={searchInputValue}
             onChange={setSearchInputValue}
@@ -298,10 +301,7 @@ export default function AppShell() {
               </Button>
             ))}
           </div>
-        </div>
 
-        {/* Right section */}
-        <div className="hidden lg:flex justify-end">
           <Button
             variant="outline"
             size="sm"
