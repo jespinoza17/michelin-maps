@@ -8,7 +8,7 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 type Props = {
   restaurants?: Restaurant[]
   city?: string
-  center?: [number, number]
+  center: [number, number]
   zoom?: number
   selectedId?: string
   onMarkerClick?: (r: Restaurant) => void
@@ -55,8 +55,8 @@ function createStarMarker(stars: number, selected: boolean) {
 export default function MapView({
   restaurants = [],
   city,
-  center = [39.8, -98.6],
-  zoom = 2,
+  center,
+  zoom = 12,
   selectedId,
   onMarkerClick,
   onMove,
@@ -71,9 +71,7 @@ export default function MapView({
     onMove?.([latitude, longitude], newZoom)
   }, [onMove])
 
-  // Update map view when center or zoom props change
-  // this useEffect may be causing infinite re-renders when we move the map
-  // I want this useEffect to only run when the city changes
+  // Update map view when city changes
   useEffect(() => {
     if (mapRef.current) {
       mapRef.current.flyTo({

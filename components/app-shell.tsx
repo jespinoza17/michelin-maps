@@ -6,13 +6,11 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-// import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Slider } from "@/components/ui/slider"
-import { Separator } from "@/components/ui/separator"
 import { toast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import {
@@ -29,6 +27,7 @@ import {
 import type { Restaurant } from "@/lib/types"
 import type { City } from "@/lib/cities"
 import CitySearch from "@/components/city-search"
+import { findCitiesByName } from "@/lib/cities"
 
 // Dynamically import the Map to avoid SSR issues
 const MapView = dynamic(() => import("@/components/map-view"), { ssr: false })
@@ -56,13 +55,29 @@ export default function AppShell() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [isFiltersOpen, setIsFiltersOpen] = useState(false) // mobile sheet
   const [isSidebarOpen, setIsSidebarOpen] = useState(false) // desktop sidebar
-  const [center, setCenter] = useState<[number, number]>([39.8, -98.6])
-  const [zoom, setZoom] = useState<number>(2)
   const [searchInputValue, setSearchInputValue] = useState("")
 
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  
+  const defaultMap = useMemo(() => {
+    const cities = searchParams.get("cities")
+    if (cities) {
+      const cityResults = findCitiesByName(cities)
+      const city = cityResults.find((c) => c.name === cities) || cityResults[0]
+      return { center: [city.latitude, city.longitude] as [number, number], zoom: 11 }
+    }
+
+    // USA center
+    const center = [39.8, -98.6] as [number, number]
+    const zoom = 12
+    return { center, zoom }
+  }, [filters.locationQuery])
+
+  const [center, setCenter] = useState<[number, number]>(defaultMap.center)
+
+  const [zoom, setZoom] = useState<number>(defaultMap.zoom)
 
   // Load from backend API
   useEffect(() => {
@@ -140,18 +155,15 @@ export default function AppShell() {
 
     // If location query exists but no coordinates, try to find and center on city
     if (cities && !ll) {
-      import("@/lib/cities").then(({ findCitiesByName }) => {
-        const cityResults = findCitiesByName(cities)
+      const cityResults = findCitiesByName(cities)
         if (cityResults.length > 0) {
           // find the most similar city with the exact name
           const city = cityResults.find((c) => c.name === cities) || cityResults[0]
           setCenter([city.latitude, city.longitude])
           setZoom(11) // Good zoom level for city view
-        }
-      })
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // only run once
+  }, [])
 
 
   // Compute filtered list
