@@ -71,7 +71,7 @@ export default function AppShell() {
 
     // USA center
     const center = [39.8, -98.6] as [number, number]
-    const zoom = 12
+    const zoom = 2
     return { center, zoom }
   }, [filters.locationQuery])
 

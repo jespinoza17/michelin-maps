@@ -56,7 +56,7 @@ export default function MapView({
   restaurants = [],
   city,
   center,
-  zoom = 12,
+  zoom = 2,
   selectedId,
   onMarkerClick,
   onMove,
