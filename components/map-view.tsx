@@ -17,16 +17,18 @@ type Props = {
 }
 
 function starColor(stars: number) {
-  if (stars === 3) return "#7c3aed" // violet-600
-  if (stars === 2) return "#d946ef" // fuchsia-500
-  return "#14b8a6" // teal-500
+  if (stars === 3) return "#7c3aed" // violet-600 (premium 3-star)
+  if (stars === 2) return "#d946ef" // fuchsia-500 (premium 2-star)
+  return "#14b8a6" // teal-500 (premium 1-star)
 }
 
 function createStarMarker(stars: number, selected: boolean) {
-  const size = selected ? 36 : 28
-  const border = selected ? "3px solid #7c3aed" : "2px solid white" // violet-600 when selected
-  const shadow = selected ? "0 8px 16px rgba(0,0,0,0.25)" : "0 4px 10px rgba(0,0,0,0.2)"
-  const bg = starColor(stars)
+  const size = selected ? 40 : 32
+  const border = selected ? "3px solid #1e293b" : "2px solid white"
+  const shadow = selected 
+    ? "0 10px 25px rgba(30, 41, 59, 0.3), 0 4px 10px rgba(0,0,0,0.1)" 
+    : "0 6px 15px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.1)"
+  const bg = `linear-gradient(135deg, ${starColor(stars)}, ${starColor(stars)}dd)`
   
   return (
     <div
@@ -39,11 +41,12 @@ function createStarMarker(stars: number, selected: boolean) {
         alignItems: "center",
         justifyContent: "center",
         color: "white",
-        fontWeight: 700,
-        fontSize: selected ? 14 : 12,
+        fontWeight: 600,
+        fontSize: selected ? 15 : 13,
         border: border,
         boxShadow: shadow,
         cursor: "pointer",
+        transform: selected ? "scale(1.1)" : "scale(1)",
       }}
     >
       {stars}
@@ -96,10 +99,10 @@ export default function MapView({
 
   if (!mapboxToken) {
     return (
-      <div className="w-full h-[calc(100dvh-56px)] md:h-[calc(100dvh-64px)] flex items-center justify-center bg-gray-100">
-        <div className="text-center p-4">
-          <p className="text-red-600 font-semibold">Mapbox access token is missing</p>
-          <p className="text-sm text-gray-600 mt-2">
+      <div className="w-full h-[calc(100dvh-56px)] md:h-[calc(100dvh-64px)] flex items-center justify-center bg-gradient-to-br from-blue-100/60 via-slate-100/40 to-indigo-100/50">
+        <div className="text-center p-6 bg-white/60 backdrop-blur-sm rounded-3xl border border-white/30 shadow-lg">
+          <p className="text-red-600 font-semibold text-lg">Mapbox access token is missing</p>
+          <p className="text-sm text-slate-600 mt-2 font-light">
             Please add your Mapbox access token to the .env.local file
           </p>
         </div>
@@ -121,8 +124,24 @@ export default function MapView({
         mapStyle="mapbox://styles/mapbox/streets-v12"
         onMove={handleMove}
       >
-        <NavigationControl position="top-right" />
-        <GeolocateControl position="top-right" />
+        <NavigationControl 
+          position="top-right" 
+          style={{
+            background: "rgba(255, 255, 255, 0.95)",
+            border: "1px solid rgba(255, 255, 255, 0.5)",
+            borderRadius: "12px",
+            boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)"
+          }}
+        />
+        <GeolocateControl 
+          position="top-right" 
+          style={{
+            background: "rgba(255, 255, 255, 0.95)",
+            border: "1px solid rgba(255, 255, 255, 0.5)",
+            borderRadius: "12px",
+            boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)"
+          }}
+        />
         
         {!isLoading && positions.map((r) => (
           <Marker
@@ -140,10 +159,10 @@ export default function MapView({
       </Map>
       
       {isLoading && (
-        <div className="absolute inset-0 bg-white/75 flex items-center justify-center z-10">
-          <div className="flex flex-col items-center space-y-3">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
-            <p className="text-sm text-gray-600 font-medium">Loading restaurants...</p>
+        <div className="absolute inset-0 bg-white/85 flex items-center justify-center z-10">
+          <div className="flex flex-col items-center space-y-4 bg-white rounded-2xl p-6 border border-slate-200 shadow-lg">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <p className="text-sm text-slate-600 font-light">Loading restaurants...</p>
           </div>
         </div>
       )}

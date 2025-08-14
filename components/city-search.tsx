@@ -103,14 +103,14 @@ export default function CitySearch({ value, onChange, onCitySelect, placeholder,
       </div>
 
       {isOpen && suggestions.length > 0 && (
-        <Card className="absolute top-full left-0 right-0 z-[9999] mt-2 shadow-2xl border-slate-200/50 bg-white/90 backdrop-blur-xl rounded-2xl overflow-hidden">
+        <Card className="absolute top-full left-0 right-0 z-[9999] mt-2 shadow-lg border-slate-200/50 bg-white/95 rounded-2xl overflow-hidden">
           <CardContent className="p-0">
             <div ref={listRef} className="max-h-64 overflow-y-auto">
               {suggestions.map((city, index) => (
                 <Button
                   key={city.fullName}
                   variant="ghost"
-                  className={`w-full justify-start rounded-none p-4 h-auto text-left transition-all duration-200 hover:bg-blue-50/50 ${
+                  className={`w-full justify-start rounded-none p-4 h-auto text-left transition-colors duration-100 hover:bg-blue-50/50 ${
                     index === selectedIndex ? "bg-blue-50/70 text-blue-700" : "text-slate-700"
                   }`}
                   onClick={() => handleCitySelect(city)}

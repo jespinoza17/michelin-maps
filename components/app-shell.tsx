@@ -249,21 +249,21 @@ export default function AppShell() {
 
   return (
     <div className="grid grid-rows-[auto_1fr] min-h-dvh">
-      {/* Header with subtle gradient */}
-      <header className="grid grid-cols-[1fr_auto] lg:grid-cols-3 items-center gap-2 lg:gap-4 px-3 lg:px-6 py-2 lg:py-3 border-b sticky top-0 z-40 bg-gradient-to-r from-blue-50 to-sky-50">
+      {/* Header with premium glassmorphism styling */}
+      <header className="grid grid-cols-[1fr_auto] lg:grid-cols-3 items-center gap-2 lg:gap-4 px-3 lg:px-6 py-3 lg:py-4 sticky top-0 z-40 bg-white/40 backdrop-blur-xl border-b border-white/20 shadow-lg shadow-slate-900/5">
         {/* Left section */}
         <div className="flex items-center gap-1 lg:gap-2 min-w-0 overflow-hidden">
           <MapPin className="size-4 lg:size-5 text-blue-600 flex-shrink-0" aria-hidden="true" />
-          <Link href="/" className="flex items-center gap-1 lg:gap-2 hover:opacity-80 transition-opacity min-w-0">
-            <h1 className="text-sm lg:text-lg font-semibold tracking-tight text-zinc-900 truncate">Michelin Maps</h1>
+          <Link href="/" className="flex items-center gap-1 lg:gap-2 hover:opacity-80 transition-all duration-300 min-w-0">
+            <h1 className="text-sm lg:text-2xl font-light tracking-tight bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent truncate">Michelin Maps</h1>
           </Link>
           {filters.locationQuery && (
-            <span className="text-xs lg:text-sm text-zinc-600 font-medium whitespace-nowrap">
+            <span className="text-xs lg:text-sm text-slate-600 font-light tracking-wide whitespace-nowrap">
               {filters.locationQuery}
             </span>
           )}
           <div className="hidden lg:block">
-            <Badge variant="secondary" className="ml-2 bg-blue-100 text-blue-700 whitespace-nowrap">
+            <Badge variant="secondary" className="ml-2 bg-white/60 backdrop-blur-sm border border-blue-200/50 text-blue-700 whitespace-nowrap rounded-full px-3 py-1 font-light">
               {isLoading ? "Loading..." : `${filteredCount} places`}
             </Badge>
           </div>
@@ -271,7 +271,7 @@ export default function AppShell() {
         
         {/* Mobile badge section */}
         <div className="lg:hidden">
-          <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 whitespace-nowrap">
+          <Badge variant="secondary" className="text-xs bg-white/60 backdrop-blur-sm border border-blue-200/50 text-blue-700 whitespace-nowrap rounded-full px-2 py-1 font-light">
             {isLoading ? "Loading..." : `${filteredCount} places`}
           </Badge>
         </div>
@@ -286,7 +286,7 @@ export default function AppShell() {
             onChange={setSearchInputValue}
             onCitySelect={onCitySelect}
             placeholder="Search cities..."
-            className="w-64"
+            className="w-64 bg-white/80 border-white/50 rounded-2xl focus:bg-white focus:ring-1 focus:ring-blue-500/30 focus:border-blue-500/50 placeholder:text-slate-400 font-light tracking-wide transition-colors duration-150"
           />
           
           <div className="flex gap-2">
@@ -296,9 +296,10 @@ export default function AppShell() {
                 size="sm"
                 variant={filters.stars.includes(stars) ? "default" : "outline"}
                 className={cn(
+                  "rounded-full font-light tracking-wide transition-all duration-300 transform hover:scale-105 hover:shadow-lg",
                   filters.stars.includes(stars)
-                    ? "bg-blue-600 hover:bg-blue-700 text-white"
-                    : "bg-white text-zinc-800",
+                    ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40"
+                    : "bg-white/80 backdrop-blur-sm border border-slate-200/50 text-slate-700 hover:bg-white hover:text-blue-600 hover:border-blue-300/50 shadow-sm",
                 )}
                 onClick={() =>
                   setFilters((f) => {
@@ -319,7 +320,7 @@ export default function AppShell() {
             size="sm"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             aria-label={isSidebarOpen ? "Hide filters" : "Show filters"}
-            className="bg-white/70 gap-2"
+            className="bg-white/80 backdrop-blur-sm border border-slate-200/50 text-slate-700 hover:bg-white hover:text-blue-600 hover:border-blue-300/50 rounded-full gap-2 font-light tracking-wide transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
           >
             <Filter className="size-4 text-blue-600" />
             Filters
@@ -332,19 +333,19 @@ export default function AppShell() {
       <div className={cn("grid grid-cols-1 h-[calc(100vh-56px)] md:h-[calc(100vh-64px)]", isSidebarOpen ? "lg:grid-cols-[400px_1fr]" : "lg:grid-cols-1")}>
         {/* Sidebar (Desktop) */}
         {isSidebarOpen && (
-          <aside className="hidden lg:flex relative flex-col border-r bg-white h-full overflow-hidden">
+          <aside className="hidden lg:flex relative flex-col h-full overflow-hidden bg-white/40 backdrop-blur-xl border-r border-white/20 shadow-2xl shadow-slate-900/10">
             {/* Collapse handle on the right edge of the panel (ChatGPT-style) */}
             <button
               type="button"
               onClick={() => setIsSidebarOpen(false)}
               aria-label="Hide filters"
-              className="absolute right-0 top-10 translate-x-1/2 z-30 h-8 w-8 rounded-full border border-zinc-200 bg-white shadow hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="absolute right-0 top-10 translate-x-1/2 z-30 h-8 w-8 rounded-full border border-white/30 bg-white/80 backdrop-blur-sm shadow-lg hover:bg-white/90 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-300"
               title="Hide filters"
             >
               <PanelLeftClose className="mx-auto size-4 text-blue-700" />
             </button>
 
-            <div className="p-4 border-b">
+            <div className="p-4 border-b border-white/20">
               <FiltersPanel 
                 filters={filters} 
                 onChange={setFilters} 
@@ -355,7 +356,7 @@ export default function AppShell() {
               />
             </div>
             <div className="flex flex-col min-h-0">
-              <div className="p-3 border-b space-y-2">
+              <div className="p-3 border-b border-white/20 space-y-2">
                 <SearchBar
                   value={filters.search}
                   onChange={(v) => setFilters((f) => ({ ...f, search: v }))}
@@ -364,10 +365,10 @@ export default function AppShell() {
                 <Button
                   disabled={!filters.locationQuery}
                   className={cn(
-                    "w-full",
+                    "w-full rounded-2xl font-light tracking-wide transition-all duration-300 transform hover:scale-105",
                     filters.locationQuery
-                      ? "bg-blue-600 hover:bg-blue-700 text-white"
-                      : "bg-white border border-gray-200 text-gray-400 cursor-not-allowed hover:bg-white"
+                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40"
+                      : "bg-white/60 backdrop-blur-sm border border-slate-200/50 text-slate-400 cursor-not-allowed hover:bg-white/60"
                   )}
                   onClick={() => {
                     // Optional: Add search action here if needed
@@ -413,7 +414,7 @@ export default function AppShell() {
                   type="button"
                   onClick={() => setIsSidebarOpen(true)}
                   aria-label="Show filters"
-                  className="h-9 w-9 rounded-full border border-zinc-200 bg-white/80 backdrop-blur-sm shadow hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center"
+                  className="h-10 w-10 rounded-full border border-white/30 bg-white/80 backdrop-blur-sm shadow-lg hover:bg-white/90 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 flex items-center justify-center transition-all duration-300 transform hover:scale-105"
                   title="Show filters"
                 >
                   <PanelLeftOpen className="size-4 text-blue-700" />
@@ -429,7 +430,7 @@ export default function AppShell() {
               onChange={setSearchInputValue}
               onCitySelect={onCitySelect}
               placeholder="Search cities..."
-              className="bg-white/80 backdrop-blur-sm w-[80%]"
+              className="bg-white/90 border border-white/50 rounded-2xl shadow-md w-[80%] font-light tracking-wide"
             />
             <div className="flex gap-2 overflow-x-auto no-scrollbar">
               {[1, 2, 3].map((s) => (
@@ -438,9 +439,10 @@ export default function AppShell() {
                   size="sm"
                   variant={filters.stars.includes(s) ? "default" : "outline"}
                   className={cn(
+                    "rounded-full font-light tracking-wide transition-all duration-300 transform hover:scale-105 shadow-lg",
                     filters.stars.includes(s)
-                      ? "bg-blue-600 hover:bg-blue-700 text-white"
-                      : "bg-white/80 text-zinc-800",
+                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-blue-500/25 hover:shadow-blue-500/40"
+                      : "bg-white/80 backdrop-blur-sm border border-white/30 text-slate-800 hover:bg-white/90 hover:text-blue-600",
                   )}
                   onClick={() =>
                     setFilters((f) => {
@@ -476,12 +478,12 @@ function SearchBar({
 }: { value: string; onChange: (v: string) => void; placeholder?: string }) {
   return (
     <div className="relative">
-      <Search className="absolute left-2 top-1/2 -translate-y-1/2 size-4 text-zinc-400" />
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
       <Input
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder || "Search"}
-        className="pl-8"
+        className="pl-10 bg-white/80 border-white/50 rounded-2xl focus:bg-white focus:ring-1 focus:ring-blue-500/30 focus:border-blue-500/50 placeholder:text-slate-400 font-light tracking-wide transition-colors duration-150"
         aria-label="Search restaurants"
       />
     </div>
@@ -506,23 +508,23 @@ function FiltersPanel({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="font-medium">Filters</h2>
+        <h2 className="font-light text-lg tracking-wide bg-gradient-to-r from-slate-900 to-blue-900 bg-clip-text text-transparent">Filters</h2>
         <Button
           variant="ghost"
           size="sm"
           onClick={onReset}
-          className="px-2 text-blue-700 hover:text-blue-800 hover:bg-transparent mt-1"
+          className="px-3 py-1 text-blue-700 hover:text-blue-800 hover:bg-blue-50/50 rounded-full font-light tracking-wide transition-all duration-300"
           aria-label="Reset filters"
         >
           Reset
         </Button>
       </div>
 
-      <div className="space-y-2">
-        <Label>Stars</Label>
+      <div className="space-y-3">
+        <Label className="text-sm font-light text-slate-700 tracking-wide">Stars</Label>
         <div className="flex gap-3">
           {[1, 2, 3].map((s) => (
-            <label key={s} className="inline-flex items-center gap-2">
+            <label key={s} className="inline-flex items-center gap-2 p-2 rounded-xl bg-white/40 backdrop-blur-sm border border-white/30 hover:bg-white/60 transition-all duration-300 cursor-pointer">
               <Checkbox
                 checked={filters.stars.includes(s)}
                 onCheckedChange={(checked) => {
@@ -534,8 +536,9 @@ function FiltersPanel({
                   })
                 }}
                 aria-label={`${s} star${s > 1 ? "s" : ""}`}
+                className="rounded-md"
               />
-              <span className="text-sm flex items-center gap-1">
+              <span className="text-sm flex items-center gap-1 font-light">
                 <Star className="size-3 fill-blue-400 text-blue-400" /> {s}
               </span>
             </label>
@@ -544,17 +547,18 @@ function FiltersPanel({
       </div>
 
 
-      <div className="space-y-2">
-        <Label>Price</Label>
-        <div className="px-1">
+      <div className="space-y-3">
+        <Label className="text-sm font-light text-slate-700 tracking-wide">Price</Label>
+        <div className="px-2 py-3 rounded-xl bg-white/40 backdrop-blur-sm border border-white/30">
           <Slider
             min={1}
             max={4}
             step={1}
             value={[filters.priceRange[0], filters.priceRange[1]]}
             onValueChange={(v) => onChange({ ...filters, priceRange: [v[0], v[1]] as [number, number] })}
+            className="w-full"
           />
-          <div className="flex justify-between mt-1 text-xs text-zinc-500">
+          <div className="flex justify-between mt-2 text-xs text-slate-500 font-light">
             <span>$</span>
             <span>$$</span>
             <span>$$$</span>
@@ -563,13 +567,14 @@ function FiltersPanel({
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label>Location</Label>
+      <div className="space-y-3">
+        <Label className="text-sm font-light text-slate-700 tracking-wide">Location</Label>
         <CitySearch
           value={searchInputValue}
           onChange={onSearchInputChange}
           onCitySelect={onCitySelect}
           placeholder="Search cities..."
+          className="bg-white/80 border-white/50 rounded-2xl focus:bg-white focus:ring-1 focus:ring-blue-500/30 focus:border-blue-500/50 placeholder:text-slate-400 font-light tracking-wide transition-colors duration-150"
         />
       </div>
     </div>
@@ -589,12 +594,12 @@ function ListPanel({
 }) {
   if (isLoading) {
     return (
-      <div className="space-y-2">
+      <div className="space-y-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="animate-pulse rounded-md border border-zinc-200 p-3">
-            <div className="h-4 w-1/2 bg-zinc-200 rounded" />
-            <div className="mt-2 h-3 w-1/3 bg-zinc-200 rounded" />
-            <div className="mt-2 h-3 w-1/4 bg-zinc-200 rounded" />
+          <div key={i} className="animate-pulse rounded-2xl bg-white/40 backdrop-blur-sm border border-white/30 p-4 shadow-sm">
+            <div className="h-4 w-1/2 bg-slate-200 rounded-lg" />
+            <div className="mt-2 h-3 w-1/3 bg-slate-200 rounded-lg" />
+            <div className="mt-2 h-3 w-1/4 bg-slate-200 rounded-lg" />
           </div>
         ))}
       </div>
@@ -602,39 +607,39 @@ function ListPanel({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {items.map((r) => (
         <button
           key={r.id}
           onClick={() => onSelect(r)}
           className={cn(
-            "w-full text-left rounded-md border p-3 hover:bg-blue-50/60 transition",
-            selectedId === r.id ? "border-blue-600 ring-2 ring-blue-100" : "border-zinc-200",
+            "w-full text-left rounded-2xl p-4 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg",
+            selectedId === r.id 
+              ? "bg-white/80 backdrop-blur-sm border-2 border-blue-500/50 ring-2 ring-blue-500/20 shadow-lg shadow-blue-500/10" 
+              : "bg-white/50 backdrop-blur-sm border border-white/30 hover:bg-white/70 hover:border-blue-300/50 shadow-sm",
           )}
           aria-label={`Select ${r.name}`}
         >
           <div className="flex items-start justify-between">
-            <div className="min-w-0">
-              <div className="font-medium truncate">{r.name}</div>
-              <div className="text-xs text-zinc-500 truncate">
+            <div className="min-w-0 flex-1">
+              <div className="font-semibold text-slate-900 truncate text-base tracking-wide">{r.name}</div>
+              <div className="text-sm text-slate-600 truncate font-light mt-1">
                 {r.city}, {r.country}
               </div>
-              <div className="mt-1 flex items-center gap-2 text-xs">
-                <span className="inline-flex items-center gap-1">
-                  <Star className="size-3 fill-blue-400 text-blue-400" /> {r.stars}
+              <div className="mt-3 flex items-center gap-3 text-sm">
+                <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-500 text-white rounded-full text-xs font-light">
+                  <Star className="size-3 fill-white text-white" /> {r.stars}
                 </span>
-                <span className="text-zinc-400">•</span>
-                <span>{r.cuisine}</span>
-                <span className="text-zinc-400">•</span>
-                <span>{"$".repeat(Math.max(1, Math.min(4, r.price_level)))}</span>
+                <span className="px-2 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-light">{r.cuisine}</span>
+                <span className="px-2 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-light">{"$".repeat(Math.max(1, Math.min(4, r.price_level)))}</span>
               </div>
             </div>
           </div>
         </button>
       ))}
       {items.length === 0 && (
-        <Card>
-          <CardContent className="p-4 text-sm text-zinc-600">No results. Try adjusting your filters.</CardContent>
+        <Card className="bg-white/50 backdrop-blur-sm border border-white/30 rounded-2xl shadow-sm">
+          <CardContent className="p-4 text-sm text-slate-600 font-light text-center">No results. Try adjusting your filters.</CardContent>
         </Card>
       )}
     </div>
@@ -646,55 +651,56 @@ function RestaurantCard({ restaurant, onClose }: { restaurant: Restaurant; onClo
   const img = `/placeholder.svg?height=200&width=400&query=michelin%20star%20restaurant%20interior`
   
   return (
-    <Card className="shadow-lg border-blue-200">
+    <Card className="bg-white/90 backdrop-blur-xl border border-white/30 shadow-2xl shadow-slate-900/10 rounded-3xl overflow-hidden">
       <CardContent className="p-0">
         <div className="relative">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={img}
             alt={`${restaurant.name} image`}
-            className="w-full h-40 object-cover rounded-t-md"
+            className="w-full h-40 object-cover rounded-t-3xl"
           />
           <Button
             variant="secondary"
             size="icon"
-            className="absolute top-2 right-2 bg-white/80"
+            className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm border border-white/30 rounded-full shadow-lg hover:bg-white transition-all duration-300 transform hover:scale-105"
             onClick={onClose}
             aria-label="Close details"
           >
             <X className="size-4" />
           </Button>
           {restaurant.green_star && (
-            <Badge className="absolute top-2 left-2 bg-green-600 text-white">
+            <Badge className="absolute top-3 left-3 bg-green-600 text-white rounded-full px-3 py-1 font-light shadow-lg">
               Green Star
             </Badge>
           )}
         </div>
-        <div className="p-3">
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <div className="font-semibold">{restaurant.name}</div>
-              <div className="text-xs text-zinc-500">
+        <div className="p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1">
+              <div className="font-semibold text-lg text-slate-900 tracking-wide">{restaurant.name}</div>
+              <div className="text-sm text-slate-600 font-light mt-1">
                 {restaurant.city}, {restaurant.country}
               </div>
-              <div className="text-xs text-zinc-400 mt-1">
+              <div className="text-sm text-slate-500 mt-1 font-light">
                 {restaurant.address}
               </div>
             </div>
-            <Badge className="bg-blue-600">{restaurant.stars}★</Badge>
+            <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full px-3 py-1 font-light shadow-lg">{restaurant.stars}★</Badge>
           </div>
-          <div className="mt-2 text-sm text-zinc-700">
-            {restaurant.cuisine} • {"$".repeat(Math.max(1, Math.min(4, restaurant.price_level)))}
+          <div className="mt-3 flex items-center gap-2">
+            <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-sm font-light">{restaurant.cuisine}</span>
+            <span className="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm font-light">{"$".repeat(Math.max(1, Math.min(4, restaurant.price_level)))}</span>
           </div>
           {restaurant.facilities.length > 0 && (
-            <div className="mt-2 text-xs text-zinc-500">
+            <div className="mt-3 text-sm text-slate-500 font-light">
               {restaurant.facilities.slice(0, 3).join(", ")}
               {restaurant.facilities.length > 3 && "..."}
             </div>
           )}
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap gap-2">
             {restaurant.phone && (
-              <Button asChild size="sm" variant="outline">
+              <Button asChild size="sm" variant="outline" className="bg-white/80 backdrop-blur-sm border border-slate-200/50 text-slate-700 hover:bg-white hover:text-blue-600 hover:border-blue-300/50 rounded-full font-light tracking-wide transition-all duration-300 transform hover:scale-105">
                 <a href={`tel:${restaurant.phone}`} aria-label="Call restaurant">
                   <Phone className="size-4 mr-2" />
                   Call
@@ -702,14 +708,14 @@ function RestaurantCard({ restaurant, onClose }: { restaurant: Restaurant; onClo
               </Button>
             )}
             {restaurant.website && (
-              <Button asChild size="sm" variant="outline">
+              <Button asChild size="sm" variant="outline" className="bg-white/80 backdrop-blur-sm border border-slate-200/50 text-slate-700 hover:bg-white hover:text-blue-600 hover:border-blue-300/50 rounded-full font-light tracking-wide transition-all duration-300 transform hover:scale-105">
                 <a href={restaurant.website} target="_blank" rel="noopener noreferrer" aria-label="Visit website">
                   <Globe className="size-4 mr-2" />
                   Website
                 </a>
               </Button>
             )}
-            <Button asChild size="sm" className="bg-blue-600 hover:bg-blue-700">
+            <Button asChild size="sm" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-full font-light tracking-wide transition-all duration-300 transform hover:scale-105 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40">
               <a
                 href={`https://www.google.com/maps/dir/?api=1&destination=${restaurant.lat},${restaurant.lng}`}
                 target="_blank"
