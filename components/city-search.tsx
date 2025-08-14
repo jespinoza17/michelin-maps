@@ -103,7 +103,7 @@ export default function CitySearch({ value, onChange, onCitySelect, placeholder,
       </div>
 
       {isOpen && suggestions.length > 0 && (
-        <Card className="absolute top-full left-0 right-0 z-50 mt-2 shadow-2xl border-slate-200/50 bg-white/80 backdrop-blur-xl rounded-2xl overflow-hidden">
+        <Card className="absolute top-full left-0 right-0 z-[9999] mt-2 shadow-2xl border-slate-200/50 bg-white/90 backdrop-blur-xl rounded-2xl overflow-hidden">
           <CardContent className="p-0">
             <div ref={listRef} className="max-h-64 overflow-y-auto">
               {suggestions.map((city, index) => (

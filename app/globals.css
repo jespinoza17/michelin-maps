@@ -154,4 +154,244 @@
     transform: translateY(-2px) scale(1.02);
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   }
+  
+  /* Premium travel-inspired background animations */
+  .animate-gradient-travel {
+    background-size: 300% 300%;
+    animation: gradient-travel 25s ease-in-out infinite;
+    will-change: background-position, opacity;
+  }
+  
+  .animate-gradient-counter {
+    background-size: 400% 400%;
+    animation: gradient-counter 35s ease-in-out infinite reverse;
+    will-change: background-position, opacity;
+  }
+  
+  .animate-orbit-slow {
+    animation: orbit-slow 45s ease-in-out infinite;
+    will-change: transform;
+  }
+  
+  .animate-drift-gentle {
+    animation: drift-gentle 40s ease-in-out infinite;
+    will-change: transform, opacity;
+  }
+  
+  .animate-breathe-slow {
+    animation: breathe-slow 20s ease-in-out infinite;
+    will-change: transform, opacity;
+  }
+  
+  .animate-float-vertical {
+    animation: float-vertical 30s ease-in-out infinite;
+    will-change: transform, opacity;
+  }
+  
+  .animate-twinkle {
+    animation: twinkle 15s ease-in-out infinite;
+    will-change: transform, opacity;
+  }
+  
+  .animate-pulse-gentle {
+    animation: pulse-gentle 18s ease-in-out infinite;
+    will-change: transform, opacity;
+  }
+  
+  .animate-drift-micro {
+    animation: drift-micro 25s ease-in-out infinite;
+    will-change: transform, opacity;
+  }
+  
+  .animate-travel-line {
+    animation: travel-line 60s linear infinite;
+    will-change: transform, opacity;
+  }
+  
+  .animate-travel-line-reverse {
+    animation: travel-line-reverse 80s linear infinite;
+    will-change: transform, opacity;
+  }
+  
+  /* Performance optimizations */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-gradient-travel,
+    .animate-gradient-counter,
+    .animate-orbit-slow,
+    .animate-drift-gentle,
+    .animate-breathe-slow,
+    .animate-float-vertical,
+    .animate-twinkle,
+    .animate-pulse-gentle,
+    .animate-drift-micro,
+    .animate-travel-line,
+    .animate-travel-line-reverse {
+      animation: none;
+    }
+  }
+  
+  /* Mobile performance optimization */
+  @media (max-width: 768px) {
+    .animate-orbit-slow {
+      animation-duration: 60s;
+    }
+    .animate-drift-gentle {
+      animation-duration: 50s;
+    }
+    .animate-breathe-slow {
+      animation-duration: 25s;
+    }
+  }
+}
+
+/* Premium cinematic keyframes */
+@keyframes gradient-travel {
+  0%, 100% {
+    background-position: 0% 0%;
+    opacity: 0.6;
+  }
+  25% {
+    background-position: 100% 50%;
+    opacity: 0.8;
+  }
+  50% {
+    background-position: 50% 100%;
+    opacity: 0.7;
+  }
+  75% {
+    background-position: 0% 50%;
+    opacity: 0.9;
+  }
+}
+
+@keyframes gradient-counter {
+  0%, 100% {
+    background-position: 100% 100%;
+    opacity: 0.4;
+  }
+  33% {
+    background-position: 0% 50%;
+    opacity: 0.6;
+  }
+  66% {
+    background-position: 50% 0%;
+    opacity: 0.5;
+  }
+}
+
+@keyframes orbit-slow {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+  }
+  25% {
+    transform: translate(40px, -30px) rotate(90deg) scale(1.1);
+  }
+  50% {
+    transform: translate(60px, 20px) rotate(180deg) scale(0.9);
+  }
+  75% {
+    transform: translate(-20px, 40px) rotate(270deg) scale(1.05);
+  }
+}
+
+@keyframes drift-gentle {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 0.6;
+  }
+  33% {
+    transform: translate(-30px, -40px) rotate(120deg);
+    opacity: 0.8;
+  }
+  66% {
+    transform: translate(50px, -20px) rotate(240deg);
+    opacity: 0.7;
+  }
+}
+
+@keyframes breathe-slow {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.3) rotate(180deg);
+    opacity: 0.7;
+  }
+}
+
+@keyframes float-vertical {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(-60px) rotate(180deg);
+    opacity: 0.8;
+  }
+}
+
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1) rotate(0deg);
+  }
+  33% {
+    opacity: 0.8;
+    transform: scale(1.4) rotate(120deg);
+  }
+  66% {
+    opacity: 0.5;
+    transform: scale(0.8) rotate(240deg);
+  }
+}
+
+@keyframes pulse-gentle {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes drift-micro {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(20px, -15px) rotate(180deg);
+    opacity: 0.9;
+  }
+}
+
+@keyframes travel-line {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  10%, 90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes travel-line-reverse {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  15%, 85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
 }
