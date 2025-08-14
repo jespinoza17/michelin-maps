@@ -28,7 +28,7 @@ import type { Restaurant } from "@/lib/types"
 import type { City } from "@/lib/cities"
 import CitySearch from "@/components/city-search"
 import { findCitiesByName } from "@/lib/cities"
-import { trackCitySelection } from "@/lib/posthog"
+import { trackCitySelection } from "@/lib/mixpanel"
 
 // Dynamically import the Map to avoid SSR issues
 const MapView = dynamic(() => import("@/components/map-view"), { ssr: false })

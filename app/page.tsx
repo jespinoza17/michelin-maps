@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Globe } from "lucide-react"
 import CitySearch from "@/components/city-search"
 import type { City } from "@/lib/cities"
-import { trackCitySelection } from "@/lib/posthog"
+import { trackCitySelection } from "@/lib/mixpanel"
 
 export default function HomePage() {
   const [query, setQuery] = useState("")

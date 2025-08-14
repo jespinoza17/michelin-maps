@@ -2,14 +2,14 @@
 
 import { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
-import { initPostHog, trackPageView } from '@/lib/posthog'
+import { initMixpanel, trackPageView } from '@/lib/mixpanel'
 
-export function PostHogProvider({ children }: { children: React.ReactNode }) {
+export function MixpanelProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
   useEffect(() => {
-    // Initialize PostHog on client side
-    initPostHog()
+    // Initialize Mixpanel on client side
+    initMixpanel()
   }, [])
 
   useEffect(() => {
