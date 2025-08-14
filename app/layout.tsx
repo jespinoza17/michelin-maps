@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
+import { PostHogProvider } from '@/components/providers/posthog-provider'
 import './globals.css'
 
 const inter = Inter({ 
@@ -33,7 +34,11 @@ html {
 }
         `}</style>
       </head>
-      <body className="font-inter antialiased">{children}</body>
+      <body className="font-inter antialiased">
+        <PostHogProvider>
+          {children}
+        </PostHogProvider>
+      </body>
     </html>
   )
 }

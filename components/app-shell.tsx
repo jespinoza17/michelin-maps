@@ -28,6 +28,7 @@ import type { Restaurant } from "@/lib/types"
 import type { City } from "@/lib/cities"
 import CitySearch from "@/components/city-search"
 import { findCitiesByName } from "@/lib/cities"
+import { trackCitySelection } from "@/lib/posthog"
 
 // Dynamically import the Map to avoid SSR issues
 const MapView = dynamic(() => import("@/components/map-view"), { ssr: false })
@@ -287,6 +288,7 @@ export default function AppShell() {
             onCitySelect={(city) => {
               onCitySelect(city)
               setHeaderSearchValue("")
+              trackCitySelection(city.name, 'header')
             }}
             placeholder="Search cities..."
             className="w-64 bg-white/80 border-white/50 rounded-2xl focus:bg-white focus:ring-1 focus:ring-blue-500/30 focus:border-blue-500/50 placeholder:text-slate-400 font-light tracking-wide transition-colors duration-150"
@@ -356,6 +358,7 @@ export default function AppShell() {
                 onCitySelect={(city) => {
                   onCitySelect(city)
                   setSidebarSearchValue("")
+                  trackCitySelection(city.name, 'sidebar')
                 }}
                 searchInputValue={sidebarSearchValue}
                 onSearchInputChange={setSidebarSearchValue}
@@ -437,6 +440,7 @@ export default function AppShell() {
               onCitySelect={(city) => {
                 onCitySelect(city)
                 setHeaderSearchValue("")
+                trackCitySelection(city.name, 'mobile')
               }}
               placeholder="Search cities..."
               className="bg-white/90 border border-white/50 rounded-2xl shadow-md w-[80%] font-light tracking-wide"

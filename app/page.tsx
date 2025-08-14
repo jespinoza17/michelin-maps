@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Globe } from "lucide-react"
 import CitySearch from "@/components/city-search"
 import type { City } from "@/lib/cities"
+import { trackCitySelection } from "@/lib/posthog"
 
 export default function HomePage() {
   const [query, setQuery] = useState("")
@@ -49,6 +50,7 @@ export default function HomePage() {
   function onCitySelect(city: City) {
     setSelectedCity(city)
     setQuery(city.name)
+    trackCitySelection(city.name, 'header')
   }
 
   async function onSubmit(e: React.FormEvent) {
@@ -172,7 +174,10 @@ export default function HomePage() {
             {["Tokyo", "Paris", "New York", "London", "Barcelona", "Hong Kong"].map((city) => (
               <button
                 key={city}
-                onClick={() => router.push(`/map?cities=${encodeURIComponent(city)}`)}
+                onClick={() => {
+                  trackCitySelection(city, 'header')
+                  router.push(`/map?cities=${encodeURIComponent(city)}`)
+                }}
                 className="group relative overflow-hidden rounded-full border border-slate-200/50 bg-white/50 backdrop-blur-sm px-6 md:px-8 py-3 md:py-4 text-sm md:text-base text-slate-600 font-light tracking-wide transition-all duration-300 hover:bg-white/80 hover:border-blue-300/50 hover:text-blue-600 hover:shadow-lg hover:shadow-blue-500/10 transform hover:scale-105 hover:-translate-y-0.5"
                 aria-label={`Search ${city}`}
               >
