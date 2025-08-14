@@ -87,7 +87,7 @@ export default function CitySearch({ value, onChange, onCitySelect, placeholder,
   return (
     <div className="relative">
       <div className="relative">
-        <Search className="absolute left-2 top-1/2 -translate-y-1/2 size-4 text-zinc-400" />
+        <Search className="absolute left-4 md:left-5 top-1/2 -translate-y-1/2 size-5 md:size-6 text-slate-400" />
         <Input
           ref={inputRef}
           value={value}
@@ -96,31 +96,31 @@ export default function CitySearch({ value, onChange, onCitySelect, placeholder,
           onBlur={handleBlur}
           onFocus={handleFocus}
           placeholder={placeholder || "Search cities..."}
-          className={`pl-8 ${className || ""}`}
+          className={`pl-12 md:pl-14 ${className || ""}`}
           aria-label="Search cities"
           autoComplete="off"
         />
       </div>
 
       {isOpen && suggestions.length > 0 && (
-        <Card className="absolute top-full left-0 right-0 z-50 mt-1 shadow-lg border-zinc-200">
+        <Card className="absolute top-full left-0 right-0 z-50 mt-2 shadow-2xl border-slate-200/50 bg-white/80 backdrop-blur-xl rounded-2xl overflow-hidden">
           <CardContent className="p-0">
-            <div ref={listRef} className="max-h-60 overflow-y-auto">
+            <div ref={listRef} className="max-h-64 overflow-y-auto">
               {suggestions.map((city, index) => (
                 <Button
                   key={city.fullName}
                   variant="ghost"
-                  className={`w-full justify-start rounded-none p-3 h-auto text-left ${
-                    index === selectedIndex ? "bg-violet-50 text-violet-700" : ""
+                  className={`w-full justify-start rounded-none p-4 h-auto text-left transition-all duration-200 hover:bg-blue-50/50 ${
+                    index === selectedIndex ? "bg-blue-50/70 text-blue-700" : "text-slate-700"
                   }`}
                   onClick={() => handleCitySelect(city)}
                   onMouseEnter={() => setSelectedIndex(index)}
                 >
-                  <div className="flex items-center gap-2 w-full">
-                    <MapPin className="size-4 text-zinc-400 flex-shrink-0" />
+                  <div className="flex items-center gap-3 w-full">
+                    <MapPin className="size-5 text-slate-400 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium truncate">{city.name}</div>
-                      <div className="text-xs text-zinc-500 truncate">
+                      <div className="font-medium truncate text-base">{city.name}</div>
+                      <div className="text-sm text-slate-500 truncate font-light">
                         {city.country} • {city.restaurantCount} restaurant{city.restaurantCount !== 1 ? 's' : ''}
                       </div>
                     </div>
