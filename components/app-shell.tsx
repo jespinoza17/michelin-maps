@@ -258,7 +258,7 @@ export default function AppShell() {
             <h1 className="text-sm lg:text-2xl font-light tracking-tight bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent truncate">Michelin Maps</h1>
           </Link>
           {filters.locationQuery && (
-            <span className="text-xs lg:text-sm text-slate-600 font-light tracking-wide whitespace-nowrap">
+            <span className="text-xs lg:text-lg text-slate-600 font-light tracking-wide whitespace-nowrap">
               {filters.locationQuery}
             </span>
           )}
@@ -342,7 +342,7 @@ export default function AppShell() {
               type="button"
               onClick={() => setIsSidebarOpen(false)}
               aria-label="Hide filters"
-              className="absolute right-2 top-10 z-30 h-8 w-8 rounded-full border border-white/30 bg-white/80 shadow-lg hover:bg-white/90 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-colors duration-200"
+              className="absolute right-2 top-20 z-30 h-8 w-8 rounded-full border border-white/30 bg-white/80 shadow-lg hover:bg-white/90 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-colors duration-200"
               title="Hide filters"
             >
               <PanelLeftClose className="mx-auto size-4 text-blue-700" />
