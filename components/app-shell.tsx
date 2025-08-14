@@ -55,7 +55,8 @@ export default function AppShell() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [isFiltersOpen, setIsFiltersOpen] = useState(false) // mobile sheet
   const [isSidebarOpen, setIsSidebarOpen] = useState(false) // desktop sidebar
-  const [searchInputValue, setSearchInputValue] = useState("")
+  const [headerSearchValue, setHeaderSearchValue] = useState("")
+  const [sidebarSearchValue, setSidebarSearchValue] = useState("")
 
   const router = useRouter()
   const pathname = usePathname()
@@ -226,7 +227,7 @@ export default function AppShell() {
 
   const resetFilters = () => {
     setFilters(DEFAULT_FILTERS)
-    setSearchInputValue("")
+    setSidebarSearchValue("")
   }
 
   const onSelectRestaurant = (id: string, lat?: number, long?: number) => {
@@ -241,7 +242,6 @@ export default function AppShell() {
     setCenter([city.latitude, city.longitude])
     setZoom(11)
     setFilters((f) => ({ ...f, locationQuery: city.name }))
-    setSearchInputValue("")
   }
 
 
@@ -282,9 +282,12 @@ export default function AppShell() {
         {/* Right section */}
         <div className="hidden lg:flex justify-end items-center gap-3">
           <CitySearch
-            value={searchInputValue}
-            onChange={setSearchInputValue}
-            onCitySelect={onCitySelect}
+            value={headerSearchValue}
+            onChange={setHeaderSearchValue}
+            onCitySelect={(city) => {
+              onCitySelect(city)
+              setHeaderSearchValue("")
+            }}
             placeholder="Search cities..."
             className="w-64 bg-white/80 border-white/50 rounded-2xl focus:bg-white focus:ring-1 focus:ring-blue-500/30 focus:border-blue-500/50 placeholder:text-slate-400 font-light tracking-wide transition-colors duration-150"
           />
@@ -339,7 +342,7 @@ export default function AppShell() {
               type="button"
               onClick={() => setIsSidebarOpen(false)}
               aria-label="Hide filters"
-              className="absolute right-0 top-10 translate-x-1/2 z-30 h-8 w-8 rounded-full border border-white/30 bg-white/80 backdrop-blur-sm shadow-lg hover:bg-white/90 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-300"
+              className="absolute right-2 top-10 z-30 h-8 w-8 rounded-full border border-white/30 bg-white/80 shadow-lg hover:bg-white/90 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-colors duration-200"
               title="Hide filters"
             >
               <PanelLeftClose className="mx-auto size-4 text-blue-700" />
@@ -350,9 +353,12 @@ export default function AppShell() {
                 filters={filters} 
                 onChange={setFilters} 
                 onReset={resetFilters} 
-                onCitySelect={onCitySelect}
-                searchInputValue={searchInputValue}
-                onSearchInputChange={setSearchInputValue}
+                onCitySelect={(city) => {
+                  onCitySelect(city)
+                  setSidebarSearchValue("")
+                }}
+                searchInputValue={sidebarSearchValue}
+                onSearchInputChange={setSidebarSearchValue}
               />
             </div>
             <div className="flex flex-col min-h-0">
@@ -426,9 +432,12 @@ export default function AppShell() {
           {/* Floating search and quick filters on mobile */}
           <div className="absolute left-3 right-3 top-3 z-[30] md:hidden space-y-4">
             <CitySearch
-              value={searchInputValue}
-              onChange={setSearchInputValue}
-              onCitySelect={onCitySelect}
+              value={headerSearchValue}
+              onChange={setHeaderSearchValue}
+              onCitySelect={(city) => {
+                onCitySelect(city)
+                setHeaderSearchValue("")
+              }}
               placeholder="Search cities..."
               className="bg-white/90 border border-white/50 rounded-2xl shadow-md w-[80%] font-light tracking-wide"
             />
