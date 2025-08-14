@@ -72,29 +72,29 @@ export default function HomePage() {
     <main className="min-h-dvh relative overflow-hidden">
       {/* Premium cinematic background with travel inspiration */}
       <div className="absolute inset-0">
-        {/* Base gradient layer - premium travel colors */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50/40 to-amber-50/30"></div>
+        {/* Base gradient layer - premium travel colors with enhanced blues */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-100/60 via-slate-100/40 to-indigo-100/50"></div>
         
-        {/* Animated gradient overlay - breathing effect */}
-        <div className="absolute inset-0 bg-gradient-to-tr from-blue-100/20 via-amber-100/10 to-slate-100/15 animate-gradient-travel"></div>
-        <div className="absolute inset-0 bg-gradient-to-bl from-amber-100/15 via-transparent to-blue-100/20 animate-gradient-counter"></div>
+        {/* Animated gradient overlay - breathing effect with stronger blues */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-blue-200/30 via-amber-100/15 to-indigo-200/25 animate-gradient-travel"></div>
+        <div className="absolute inset-0 bg-gradient-to-bl from-amber-100/20 via-sky-100/15 to-blue-200/30 animate-gradient-counter"></div>
         
-        {/* Large floating world-inspired shapes - responsive sizing */}
-        <div className="absolute -top-40 md:-top-60 -right-40 md:-right-60 w-64 h-64 md:w-96 md:h-96 bg-gradient-to-br from-blue-400/15 to-amber-400/10 rounded-full blur-3xl animate-orbit-slow"></div>
-        <div className="absolute -bottom-40 md:-bottom-60 -left-40 md:-left-60 w-80 h-80 md:w-[30rem] md:h-[30rem] bg-gradient-to-tr from-amber-300/8 to-blue-300/12 rounded-full blur-3xl animate-drift-gentle"></div>
+        {/* Large floating world-inspired shapes - responsive sizing with enhanced blues */}
+        <div className="absolute -top-40 md:-top-60 -right-40 md:-right-60 w-64 h-64 md:w-96 md:h-96 bg-gradient-to-br from-blue-400/25 to-indigo-400/20 rounded-full blur-3xl animate-orbit-slow"></div>
+        <div className="absolute -bottom-40 md:-bottom-60 -left-40 md:-left-60 w-80 h-80 md:w-[30rem] md:h-[30rem] bg-gradient-to-tr from-sky-300/15 to-blue-400/20 rounded-full blur-3xl animate-drift-gentle"></div>
         
-        {/* Medium floating elements - travel routes inspiration */}
-        <div className="absolute top-1/4 right-1/3 w-28 h-28 md:w-40 md:h-40 bg-gradient-to-r from-blue-300/20 to-slate-300/15 rounded-full blur-2xl animate-breathe-slow"></div>
-        <div className="absolute bottom-1/3 left-1/4 w-24 h-24 md:w-32 md:h-32 bg-gradient-to-br from-amber-300/18 to-blue-300/12 rounded-full blur-xl animate-float-vertical"></div>
+        {/* Medium floating elements - travel routes inspiration with more blue */}
+        <div className="absolute top-1/4 right-1/3 w-28 h-28 md:w-40 md:h-40 bg-gradient-to-r from-blue-300/30 to-indigo-300/25 rounded-full blur-2xl animate-breathe-slow"></div>
+        <div className="absolute bottom-1/3 left-1/4 w-24 h-24 md:w-32 md:h-32 bg-gradient-to-br from-sky-300/25 to-blue-300/20 rounded-full blur-xl animate-float-vertical"></div>
         
-        {/* Small accent particles - like distant destinations */}
-        <div className="hidden md:block absolute top-20 left-1/3 w-16 h-16 bg-gradient-to-r from-amber-400/25 to-blue-400/20 rounded-full blur-lg animate-twinkle"></div>
-        <div className="absolute top-2/3 right-1/4 w-16 h-16 md:w-20 md:h-20 bg-gradient-to-bl from-blue-400/22 to-amber-400/15 rounded-full blur-lg animate-pulse-gentle"></div>
-        <div className="hidden md:block absolute bottom-1/4 left-2/3 w-12 h-12 bg-gradient-to-tr from-slate-400/20 to-blue-400/18 rounded-full blur-md animate-drift-micro"></div>
+        {/* Small accent particles - like distant destinations with blue emphasis */}
+        <div className="hidden md:block absolute top-20 left-1/3 w-16 h-16 bg-gradient-to-r from-blue-400/30 to-indigo-400/25 rounded-full blur-lg animate-twinkle"></div>
+        <div className="absolute top-2/3 right-1/4 w-16 h-16 md:w-20 md:h-20 bg-gradient-to-bl from-blue-400/30 to-sky-400/25 rounded-full blur-lg animate-pulse-gentle"></div>
+        <div className="hidden md:block absolute bottom-1/4 left-2/3 w-12 h-12 bg-gradient-to-tr from-indigo-400/25 to-blue-400/30 rounded-full blur-md animate-drift-micro"></div>
         
-        {/* Subtle travel path lines */}
-        <div className="absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-300/30 to-transparent animate-travel-line"></div>
-        <div className="absolute top-1/3 left-0 w-full h-px bg-gradient-to-r from-transparent via-amber-300/25 to-transparent animate-travel-line-reverse"></div>
+        {/* Subtle travel path lines with enhanced blue tones */}
+        <div className="absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-400/40 to-transparent animate-travel-line"></div>
+        <div className="absolute top-1/3 left-0 w-full h-px bg-gradient-to-r from-transparent via-indigo-400/35 to-transparent animate-travel-line-reverse"></div>
         
         {/* Foreground overlay for optimal content legibility */}
         <div className="absolute inset-0 bg-gradient-to-b from-white/8 via-white/4 to-white/6"></div>
