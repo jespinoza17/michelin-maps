@@ -17,7 +17,7 @@ export interface Database {
           location: string
           city: string
           country: string
-          stars: 1 | 2 | 3
+          stars: -1 | 0 | 1 | 2 | 3
           cuisine: string
           price_level: 1 | 2 | 3 | 4
           latitude: number
@@ -38,7 +38,7 @@ export interface Database {
           location: string
           city: string
           country: string
-          stars: 1 | 2 | 3
+          stars: -1 | 0 | 1 | 2 | 3
           cuisine: string
           price_level: 1 | 2 | 3 | 4
           latitude: number
@@ -59,7 +59,7 @@ export interface Database {
           location?: string
           city?: string
           country?: string
-          stars?: 1 | 2 | 3
+          stars?: -1 | 0 | 1 | 2 | 3
           cuisine?: string
           price_level?: 1 | 2 | 3 | 4
           latitude?: number
@@ -85,7 +85,7 @@ export interface Database {
           location: string
           city: string
           country: string
-          stars: 1 | 2 | 3
+          stars: -1 | 0 | 1 | 2 | 3
           cuisine: string
           price_level: 1 | 2 | 3 | 4
           latitude: number

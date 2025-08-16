@@ -19,7 +19,10 @@ type Props = {
 function starColor(stars: number) {
   if (stars === 3) return "#7c3aed" // violet-600 (premium 3-star)
   if (stars === 2) return "#d946ef" // fuchsia-500 (premium 2-star)
-  return "#14b8a6" // teal-500 (premium 1-star)
+  if (stars === 1) return "#14b8a6" // teal-500 (premium 1-star)
+  if (stars === 0) return "#f59e0b" // amber-500 (Bib Gourmand)
+  
+  return "#14b8a6" // teal-500 (selected restaurants)
 }
 
 function createStarMarker(stars: number, selected: boolean) {
@@ -29,6 +32,9 @@ function createStarMarker(stars: number, selected: boolean) {
     ? "0 10px 25px rgba(30, 41, 59, 0.3), 0 4px 10px rgba(0,0,0,0.1)" 
     : "0 6px 15px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.1)"
   const bg = `linear-gradient(135deg, ${starColor(stars)}, ${starColor(stars)}dd)`
+
+  // in future we want a logo for selected restaurants and bib gourmand
+  const content = stars === -1 ? 'S' : stars === 0 ? 'BG' : stars
   
   return (
     <div
@@ -49,7 +55,7 @@ function createStarMarker(stars: number, selected: boolean) {
         transform: selected ? "scale(1.1)" : "scale(1)",
       }}
     >
-      {stars}
+      {content}
     </div>
   )
 }

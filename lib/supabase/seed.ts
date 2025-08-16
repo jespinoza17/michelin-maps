@@ -2,15 +2,20 @@ import { supabase } from './client'
 import rawData from '@/data/restaurants_v2.json'
 import type { RestaurantRaw } from '@/lib/types'
 
-function parseStars(award: string): 1 | 2 | 3 {
+function parseStars(award: string): -1 | 0 | 1 | 2 | 3 {
   if (award.includes("3 Stars") || award.includes("3 Star")) return 3
   if (award.includes("2 Stars") || award.includes("2 Star")) return 2
-  return 1
+  if (award.includes("1 Star") || award.includes("1 Star")) return 1
+  if (award.includes("Bib Gourmand")) return 0
+
+  // default to -1 for selected restaurants
+  return -1
 }
 
 function parsePriceLevel(price: string): 1 | 2 | 3 | 4 {
-  const dollarCount = (price.match(/\$/g) || []).length
-  return Math.min(Math.max(dollarCount, 1), 4) as 1 | 2 | 3 | 4
+  // price level should most likely be length of price string
+  // since there are different currencies
+  return price.length as 1 | 2 | 3 | 4
 }
 
 function parseLocation(location: string): { city: string; country: string } {

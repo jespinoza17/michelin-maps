@@ -42,7 +42,7 @@ type Filters = {
 }
 
 const DEFAULT_FILTERS: Filters = {
-  stars: [1, 2, 3],
+  stars: [-1, 0, 1, 2, 3],  
   cuisines: [],
   priceRange: [1, 4],
   locationQuery: "",
@@ -147,7 +147,7 @@ export default function AppShell() {
         ? stars
             .split(",")
             .map((n) => Number.parseInt(n, 10))
-            .filter((n) => [1, 2, 3].includes(n))
+            .filter((n) => [-1, 0, 1, 2, 3].includes(n))
         : prev.stars,
       cuisines: cuisines ? cuisines.split(",") : prev.cuisines,
       priceRange: price ? (price.split("-").map((n) => Number.parseInt(n, 10)) as [number, number]) : prev.priceRange,
@@ -206,7 +206,7 @@ export default function AppShell() {
       if (id) params.set("id", id)
 
       params.delete("s")
-      if (f.stars.length && f.stars.length < 3) params.set("s", f.stars.join(","))
+      if (f.stars.length && f.stars.length < 5) params.set("s", f.stars.join(","))
 
       params.delete("c")
       if (f.cuisines.length) params.set("c", f.cuisines.join(","))
@@ -295,6 +295,7 @@ export default function AppShell() {
           />
           
           <div className="flex gap-2">
+            {/* {thi will be updated to a dropdown titled "Award" with the five options} */}
             {[1, 2, 3].map((stars) => (
               <Button
                 key={stars}
