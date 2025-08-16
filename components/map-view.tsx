@@ -19,7 +19,10 @@ type Props = {
 function starColor(stars: number) {
   if (stars === 3) return "#7c3aed" // violet-600 (premium 3-star)
   if (stars === 2) return "#d946ef" // fuchsia-500 (premium 2-star)
-  return "#14b8a6" // teal-500 (premium 1-star)
+  if (stars === 1) return "#fb7185" // rose-400 (premium 1-star)
+  if (stars === 0) return "#22c55e" // green-500 (Bib Gourmand)
+  
+  return "#14b8a6" // teal-500 (selected restaurants)
 }
 
 function createStarMarker(stars: number, selected: boolean) {
@@ -29,7 +32,69 @@ function createStarMarker(stars: number, selected: boolean) {
     ? "0 10px 25px rgba(30, 41, 59, 0.3), 0 4px 10px rgba(0,0,0,0.1)" 
     : "0 6px 15px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.1)"
   const bg = `linear-gradient(135deg, ${starColor(stars)}, ${starColor(stars)}dd)`
-  
+
+  // Use logos for Bib Gourmand (0 stars) and Selected Restaurants (-1 stars)
+  if (stars === 0) { // Bib Gourmand
+    return (
+      <div
+        style={{
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          background: bg,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          border: border,
+          boxShadow: shadow,
+          cursor: "pointer",
+          transform: selected ? "scale(1.1)" : "scale(1)",
+        }}
+      >
+        <img
+          src="/white-price-tag.png"
+          alt="Bib Gourmand"
+          style={{
+            width: size * 0.7,
+            height: size * 0.7,
+            objectFit: "contain",
+          }}
+        />
+      </div>
+    )
+  }
+
+  if (stars === -1) { // Selected Restaurants
+    return (
+      <div
+        style={{
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          background: bg,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          border: border,
+          boxShadow: shadow,
+          cursor: "pointer",
+          transform: selected ? "scale(1.1)" : "scale(1)",
+        }}
+      >
+        <img
+          src="/fork-knife-gpt.png"
+          alt="Selected Restaurant"
+          style={{
+            width: size * 0.9,
+            height: size * 0.9,
+            objectFit: "contain",
+          }}
+        />
+      </div>
+    )
+  }
+
+  // Regular star markers for 1, 2, 3 star restaurants
   return (
     <div
       style={{

@@ -59,3 +59,7 @@ FROM restaurants;
 
 -- Create a policy to allow read access to all users (uncomment if RLS is enabled)
 -- CREATE POLICY "Allow read access to all users" ON restaurants FOR SELECT USING (true);
+
+-- update the stars check column to allow 0
+ALTER TABLE restaurants DROP CONSTRAINT IF EXISTS restaurants_stars_check;
+ALTER TABLE restaurants ADD CONSTRAINT restaurants_stars_check CHECK (stars IN (-1, 0, 1, 2, 3));

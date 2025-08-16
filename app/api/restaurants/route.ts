@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     // Parse stars filter (e.g., ?stars=1,3)
     const starsParam = searchParams.get('stars')
     if (starsParam) {
-      filters.stars = starsParam.split(',').map(s => parseInt(s.trim())).filter(s => [1, 2, 3].includes(s))
+      filters.stars = starsParam.split(',').map(s => parseInt(s.trim())).filter(s => [-1, 0, 1, 2, 3].includes(s))
     }
     
     // Parse countries filter (e.g., ?countries=France,Italy)
