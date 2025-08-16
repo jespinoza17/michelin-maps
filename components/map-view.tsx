@@ -19,7 +19,7 @@ type Props = {
 function starColor(stars: number) {
   if (stars === 3) return "#7c3aed" // violet-600 (premium 3-star)
   if (stars === 2) return "#d946ef" // fuchsia-500 (premium 2-star)
-  if (stars === 1) return "#10b981" // emerald-500 (premium 1-star)
+  if (stars === 1) return "#fb7185" // rose-400 (premium 1-star)
   if (stars === 0) return "#22c55e" // green-500 (Bib Gourmand)
   
   return "#14b8a6" // teal-500 (selected restaurants)
