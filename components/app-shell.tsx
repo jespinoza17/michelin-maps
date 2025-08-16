@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Slider } from "@/components/ui/slider"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { toast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import {
@@ -23,6 +25,8 @@ import {
   X,
   PanelLeftClose,
   PanelLeftOpen,
+  ChevronDown,
+  Check,
 } from "lucide-react"
 import type { Restaurant } from "@/lib/types"
 import type { City } from "@/lib/cities"
@@ -294,32 +298,11 @@ export default function AppShell() {
             className="w-64 bg-white/80 border-white/50 rounded-2xl focus:bg-white focus:ring-1 focus:ring-blue-500/30 focus:border-blue-500/50 placeholder:text-slate-400 font-light tracking-wide transition-colors duration-150"
           />
           
-          <div className="flex gap-2">
-            {/* {thi will be updated to a dropdown titled "Award" with the five options} */}
-            {[1, 2, 3].map((stars) => (
-              <Button
-                key={stars}
-                size="sm"
-                variant={filters.stars.includes(stars) ? "default" : "outline"}
-                className={cn(
-                  "rounded-full font-light tracking-wide transition-all duration-300 transform hover:scale-105 hover:shadow-lg",
-                  filters.stars.includes(stars)
-                    ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40"
-                    : "bg-white/80 backdrop-blur-sm border border-slate-200/50 text-slate-700 hover:bg-white hover:text-blue-600 hover:border-blue-300/50 shadow-sm",
-                )}
-                onClick={() =>
-                  setFilters((f) => {
-                    const included = f.stars.includes(stars)
-                    const nextStars = included ? f.stars.filter((x) => x !== stars) : [...f.stars, stars]
-                    return { ...f, stars: nextStars.length ? nextStars : [stars] }
-                  })
-                }
-              >
-                <Star className={cn("size-3 mr-1", filters.stars.includes(stars) ? "fill-white text-white" : "fill-blue-400 text-blue-400")} />
-                {stars}
-              </Button>
-            ))}
-          </div>
+          <AwardFilter
+            selectedStars={filters.stars}
+            onChange={(stars) => setFilters((f) => ({ ...f, stars }))}
+            className="w-48 bg-white/80 backdrop-blur-sm border border-slate-200/50 text-slate-700 hover:bg-white hover:border-blue-300/50 rounded-full font-light tracking-wide transition-all duration-300"
+          />
 
           <Button
             variant="outline"
@@ -446,31 +429,11 @@ export default function AppShell() {
               placeholder="Search cities..."
               className="bg-white/90 border border-white/50 rounded-2xl shadow-md w-[80%] font-light tracking-wide"
             />
-            <div className="flex gap-2 overflow-x-auto no-scrollbar">
-              {[1, 2, 3].map((s) => (
-                <Button
-                  key={s}
-                  size="sm"
-                  variant={filters.stars.includes(s) ? "default" : "outline"}
-                  className={cn(
-                    "rounded-full font-light tracking-wide transition-all duration-300 transform hover:scale-105 shadow-lg",
-                    filters.stars.includes(s)
-                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-blue-500/25 hover:shadow-blue-500/40"
-                      : "bg-white/80 backdrop-blur-sm border border-white/30 text-slate-800 hover:bg-white/90 hover:text-blue-600",
-                  )}
-                  onClick={() =>
-                    setFilters((f) => {
-                      const included = f.stars.includes(s)
-                      const nextStars = included ? f.stars.filter((x) => x !== s) : [...f.stars, s]
-                      return { ...f, stars: nextStars.length ? nextStars : [s] }
-                    })
-                  }
-                >
-                  <Star className={cn("size-3 mr-1", filters.stars.includes(s) ? "fill-white text-white" : "fill-blue-400 text-blue-400")} />
-                  {s}
-                </Button>
-              ))}
-            </div>
+            <AwardFilter
+              selectedStars={filters.stars}
+              onChange={(stars) => setFilters((f) => ({ ...f, stars }))}
+              className="w-40 bg-white/90 backdrop-blur-sm border border-white/50 text-slate-800 rounded-2xl font-light tracking-wide shadow-lg"
+            />
           </div>
 
           {/* Selected restaurant card (bottom sheet on mobile) */}
@@ -535,29 +498,12 @@ function FiltersPanel({
       </div>
 
       <div className="space-y-3">
-        <Label className="text-sm font-light text-slate-700 tracking-wide">Stars</Label>
-        <div className="flex gap-3">
-          {[1, 2, 3].map((s) => (
-            <label key={s} className="inline-flex items-center gap-2 p-2 rounded-xl bg-white/40 backdrop-blur-sm border border-white/30 hover:bg-white/60 transition-all duration-300 cursor-pointer">
-              <Checkbox
-                checked={filters.stars.includes(s)}
-                onCheckedChange={(checked) => {
-                  onChange({
-                    ...filters,
-                    stars: checked
-                      ? Array.from(new Set([...filters.stars, s])).sort()
-                      : filters.stars.filter((x) => x !== s),
-                  })
-                }}
-                aria-label={`${s} star${s > 1 ? "s" : ""}`}
-                className="rounded-md"
-              />
-              <span className="text-sm flex items-center gap-1 font-light">
-                <Star className="size-3 fill-blue-400 text-blue-400" /> {s}
-              </span>
-            </label>
-          ))}
-        </div>
+        <Label className="text-sm font-light text-slate-700 tracking-wide">Award</Label>
+        <AwardFilter
+          selectedStars={filters.stars}
+          onChange={(stars) => onChange({ ...filters, stars })}
+          className="bg-white/80 border-white/50 rounded-2xl focus:bg-white focus:ring-1 focus:ring-blue-500/30 focus:border-blue-500/50 font-light tracking-wide transition-colors duration-150"
+        />
       </div>
 
 
@@ -642,7 +588,8 @@ function ListPanel({
               </div>
               <div className="mt-3 flex items-center gap-3 text-sm">
                 <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-500 text-white rounded-full text-xs font-light">
-                  <Star className="size-3 fill-white text-white" /> {r.stars}
+                  {r.stars > 0 && <Star className="size-3 fill-white text-white" />} 
+                  {r.stars === -1 ? "Selected" : r.stars === 0 ? "Bib Gourmand" : `${r.stars} Star${r.stars > 1 ? "s" : ""}`}
                 </span>
                 <span className="px-2 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-light">{r.cuisine}</span>
                 <span className="px-2 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-light">{"$".repeat(Math.max(1, Math.min(4, r.price_level)))}</span>
@@ -700,7 +647,9 @@ function RestaurantCard({ restaurant, onClose }: { restaurant: Restaurant; onClo
                 {restaurant.address}
               </div>
             </div>
-            <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full px-3 py-1 font-light shadow-lg">{restaurant.stars}★</Badge>
+            <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full px-3 py-1 font-light shadow-lg">
+              {restaurant.stars === -1 ? "Selected" : restaurant.stars === 0 ? "Bib Gourmand" : `${restaurant.stars}★`}
+            </Badge>
           </div>
           <div className="mt-3 flex items-center gap-2">
             <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-sm font-light">{restaurant.cuisine}</span>
@@ -744,5 +693,81 @@ function RestaurantCard({ restaurant, onClose }: { restaurant: Restaurant; onClo
         </div>
       </CardContent>
     </Card>
+  )
+}
+
+function AwardFilter({
+  selectedStars,
+  onChange,
+  className,
+}: {
+  selectedStars: number[]
+  onChange: (stars: number[]) => void
+  className?: string
+}) {
+  const awardOptions = [
+    { value: 3, label: "3 Stars" },
+    { value: 2, label: "2 Stars" },
+    { value: 1, label: "1 Star" },
+    { value: 0, label: "Bib Gourmand" },
+    { value: -1, label: "Selected Restaurants" },
+  ]
+
+  const toggleStar = (starValue: number) => {
+    const isSelected = selectedStars.includes(starValue)
+    if (isSelected) {
+      // Remove the star value
+      const newStars = selectedStars.filter(s => s !== starValue)
+      onChange(newStars.length > 0 ? newStars : [starValue]) // Prevent empty selection
+    } else {
+      // Add the star value
+      onChange([...selectedStars, starValue].sort((a, b) => b - a))
+    }
+  }
+
+  const getDisplayText = () => {
+    if (selectedStars.length === 5) return "Award"
+    if (selectedStars.length === 1) {
+      const option = awardOptions.find(opt => opt.value === selectedStars[0])
+      return option?.label || "Award"
+    }
+    return `${selectedStars.length} selected`
+  }
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          className={cn("justify-between", className)}
+        >
+          {getDisplayText()}
+          <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-56 p-0 bg-white/95 backdrop-blur-xl border border-white/30 rounded-xl shadow-xl">
+        <div className="p-2">
+          {awardOptions.map((option) => (
+            <div
+              key={option.value}
+              className="flex items-center space-x-2 rounded-lg p-2 hover:bg-slate-100/50 cursor-pointer"
+              onClick={() => toggleStar(option.value)}
+            >
+              <Checkbox
+                checked={selectedStars.includes(option.value)}
+                onChange={() => toggleStar(option.value)}
+                className="rounded-md"
+              />
+              <span className="text-sm font-light tracking-wide flex-1">
+                {option.label}
+              </span>
+              {selectedStars.includes(option.value) && (
+                <Check className="h-4 w-4 text-blue-600" />
+              )}
+            </div>
+          ))}
+        </div>
+      </PopoverContent>
+    </Popover>
   )
 }
