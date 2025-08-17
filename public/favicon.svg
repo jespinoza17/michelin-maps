@@ -1,0 +1,17 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Clean star-only design with transparent background -->
+  <defs>
+    <linearGradient id="starGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#93c5fd;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#60a5fa;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Central Michelin star - clean and minimal -->
+  <g transform="translate(16,16)">
+    <path d="M0,-10 L3,-3 L10,-3 L4.5,1.5 L7.5,10 L0,6 L-7.5,10 L-4.5,1.5 L-10,-3 L-3,-3 Z" 
+          fill="url(#starGradient)" 
+          stroke="#3b82f6" 
+          stroke-width="0.8"/>
+  </g>
+</svg>

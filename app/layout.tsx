@@ -15,6 +15,28 @@ export const metadata: Metadata = {
   title: 'Michelin Maps - Discover Exceptional Dining Worldwide',
   description: 'Find Michelin-starred restaurants, Bib Gourmand selections, and recommended establishments in cities around the globe.',
   generator: 'v0.dev',
+  icons: {
+    icon: '/favicon.ico',
+  },
+  openGraph: {
+    title: 'Michelin Maps - Discover Exceptional Dining Worldwide',
+    description: 'Find Michelin-starred restaurants, Bib Gourmand selections, and recommended establishments in cities around the globe.',
+    images: [
+      {
+        url: '/screenshot-v1.png',
+        width: 1200,
+        height: 630,
+        alt: 'Michelin Maps - Interactive restaurant discovery platform',
+      },
+    ],
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Michelin Maps - Discover Exceptional Dining Worldwide',
+    description: 'Find Michelin-starred restaurants, Bib Gourmand selections, and recommended establishments in cities around the globe.',
+    images: ['/screenshot-v1.png'],
+  },
 }
 
 export default function RootLayout({
