@@ -5,7 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Globe } from "lucide-react"
+import { LocateFixed, Loader2 } from "lucide-react"
 import CitySearch from "@/components/city-search"
 import type { City } from "@/lib/cities"
 import { trackCitySelection } from "@/lib/mixpanel"
@@ -13,6 +13,7 @@ import { trackCitySelection } from "@/lib/mixpanel"
 export default function HomePage() {
   const [query, setQuery] = useState("")
   const [selectedCity, setSelectedCity] = useState<City | null>(null)
+  const [nearMeLoading, setNearMeLoading] = useState(false)
   const router = useRouter()
 
   async function goToMapWithLocation(city?: City) {
@@ -158,17 +159,38 @@ export default function HomePage() {
                 <Button
                   type="button"
                   variant="outline"
+                  disabled={nearMeLoading}
                   className="h-14 md:h-16 px-4 md:px-5 rounded-2xl bg-white/60 backdrop-blur-sm border-slate-200/50 hover:bg-white/80 hover:border-blue-300/50 transition-all duration-300 transform hover:scale-105 hover:shadow-lg group"
-                  onClick={() => router.push('/map')}
-                  aria-label="Go to map"
+                  onClick={() => {
+                    if (!navigator.geolocation) {
+                      router.push("/map")
+                      return
+                    }
+                    setNearMeLoading(true)
+                    navigator.geolocation.getCurrentPosition(
+                      (pos) => {
+                        const { latitude, longitude } = pos.coords
+                        router.push(`/map?nearme=1&ll=${latitude.toFixed(5)},${longitude.toFixed(5)}&z=11`)
+                      },
+                      () => {
+                        setNearMeLoading(false)
+                        router.push("/map")
+                      },
+                      { enableHighAccuracy: true, timeout: 10000 }
+                    )
+                  }}
+                  aria-label="Find restaurants near me"
                 >
-                  <Globe className="size-6 md:size-7 text-slate-600 group-hover:text-blue-600 transition-colors duration-300" />
+                  {nearMeLoading
+                    ? <Loader2 className="size-6 md:size-7 text-blue-600 animate-spin" />
+                    : <LocateFixed className="size-6 md:size-7 text-slate-600 group-hover:text-blue-600 transition-colors duration-300" />
+                  }
                 </Button>
               </div>
             </div>
           </form>
 
-          {/* Premium pill-shaped city buttons */}
+          {/* Popular destinations */}
           <div className="mt-8 md:mt-12 flex flex-wrap items-center justify-center gap-3 md:gap-4 relative z-0">
             <p className="text-sm md:text-base text-slate-400 font-light mb-4 md:mb-6 w-full text-center tracking-wide">Popular destinations</p>
             {["Tokyo", "Paris", "New York", "London", "Barcelona", "Hong Kong"].map((city) => (

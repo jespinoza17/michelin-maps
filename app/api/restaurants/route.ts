@@ -1,14 +1,32 @@
 import { NextResponse } from "next/server"
-import { getRestaurants } from "@/lib/supabase/queries"
+import { getRestaurants, getRestaurantsByLocation } from "@/lib/supabase/queries"
 import type { RestaurantFilters } from "@/lib/supabase/queries"
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
-    
+
+    // Location-based query (Near Me)
+    const latParam = searchParams.get('lat')
+    const lngParam = searchParams.get('lng')
+    const radiusParam = searchParams.get('radius')
+
+    if (latParam && lngParam) {
+      const lat = parseFloat(latParam)
+      const lng = parseFloat(lngParam)
+      const radiusKm = radiusParam ? parseFloat(radiusParam) : 40.2 // default 25 miles
+
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        return NextResponse.json({ error: "Invalid coordinates" }, { status: 400 })
+      }
+
+      const data = await getRestaurantsByLocation(lat, lng, radiusKm)
+      return NextResponse.json({ data, count: data.length })
+    }
+
     // Parse filter parameters
     const filters: RestaurantFilters = {}
-    
+
     // Parse stars filter (e.g., ?stars=1,3)
     const starsParam = searchParams.get('stars')
     if (starsParam) {

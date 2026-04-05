@@ -14,6 +14,7 @@ type Props = {
   onMarkerClick?: (r: Restaurant) => void
   onMove?: (center: [number, number], zoom: number) => void
   isLoading?: boolean
+  userLocation?: [number, number] | null
 }
 
 function starColor(stars: number) {
@@ -129,6 +130,7 @@ export default function MapView({
   onMarkerClick,
   onMove,
   isLoading = false,
+  userLocation,
 }: Props) {
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
   const mapRef = useRef<any>(null)
@@ -139,7 +141,7 @@ export default function MapView({
     onMove?.([latitude, longitude], newZoom)
   }, [onMove])
 
-  // Update map view when city changes
+  // Update map view when city or user location changes
   useEffect(() => {
     if (mapRef.current) {
       mapRef.current.flyTo({
@@ -148,7 +150,7 @@ export default function MapView({
         duration: 1000
       })
     }
-  }, [city])
+  }, [city, userLocation])
 
   const positions = useMemo(() => {
     const validRestaurants = restaurants.filter((r) => {
@@ -208,6 +210,21 @@ export default function MapView({
           }}
         />
         
+        {userLocation && (
+          <Marker longitude={userLocation[1]} latitude={userLocation[0]}>
+            <div
+              style={{
+                width: 18,
+                height: 18,
+                borderRadius: "50%",
+                background: "#3b82f6",
+                border: "3px solid white",
+                boxShadow: "0 0 0 2px #3b82f6, 0 2px 8px rgba(59, 130, 246, 0.5)",
+              }}
+            />
+          </Marker>
+        )}
+
         {!isLoading && positions.map((r) => (
           <Marker
             key={r.id}
