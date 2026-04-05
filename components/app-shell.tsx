@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic"
 import Link from "next/link"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -27,6 +27,8 @@ import {
   PanelLeftOpen,
   ChevronDown,
   Check,
+  LocateFixed,
+  Loader2,
 } from "lucide-react"
 import type { Restaurant } from "@/lib/types"
 import type { City } from "@/lib/cities"
@@ -62,6 +64,10 @@ export default function AppShell() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false) // desktop sidebar
   const [headerSearchValue, setHeaderSearchValue] = useState("")
   const [sidebarSearchValue, setSidebarSearchValue] = useState("")
+  const [nearMeLoading, setNearMeLoading] = useState(false)
+  const [isNearMe, setIsNearMe] = useState(false)
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
+  const nearMeRef = useRef(false)
 
   const router = useRouter()
   const pathname = usePathname()
@@ -75,6 +81,17 @@ export default function AppShell() {
       return { center: [city.latitude, city.longitude] as [number, number], zoom: 11 }
     }
 
+    // If nearme with coordinates, start there
+    const ll = searchParams.get("ll")
+    if (ll) {
+      const [latStr, lngStr] = ll.split(",")
+      const lat = Number.parseFloat(latStr)
+      const lng = Number.parseFloat(lngStr)
+      if (Number.isFinite(lat) && Number.isFinite(lng)) {
+        return { center: [lat, lng] as [number, number], zoom: 11 }
+      }
+    }
+
     // USA center
     const center = [39.8, -98.6] as [number, number]
     const zoom = 2
@@ -85,12 +102,18 @@ export default function AppShell() {
 
   const [zoom, setZoom] = useState<number>(defaultMap.zoom)
 
+  // Keep ref in sync
+  useEffect(() => { nearMeRef.current = isNearMe }, [isNearMe])
+
   // Load from backend API
   useEffect(() => {
+    // Skip URL-based fetch when Near Me results are active
+    if (nearMeRef.current || searchParams.get("nearme") === "1") return
+
     const run = async () => {
       try {
         setIsLoading(true)
-        
+
         // Build query parameters from URL
         const params = new URLSearchParams()
         const cities = searchParams.get("cities")
@@ -134,6 +157,7 @@ export default function AppShell() {
     const cities = searchParams.get("cities")
     const q = searchParams.get("q")
     const ll = searchParams.get("ll")
+    const nearme = searchParams.get("nearme")
 
     if (ll) {
       const [latStr, lngStr] = ll.split(",")
@@ -142,6 +166,26 @@ export default function AppShell() {
       if (Number.isFinite(lat) && Number.isFinite(lng)) {
         setCenter([lat, lng])
         setZoom(12)
+
+        // If nearme param is set, trigger a location-based fetch
+        if (nearme === "1") {
+          setIsNearMe(true)
+          setUserLocation([lat, lng])
+          nearMeRef.current = true
+          setIsLoading(true)
+          setZoom(11)
+          fetch(`/api/restaurants?lat=${lat}&lng=${lng}&radius=40.2`)
+            .then((res) => res.json())
+            .then((json) => {
+              const restaurantData = json.data || json
+              setData(restaurantData || [])
+              toast({ title: "Near Me", description: `Found ${restaurantData.length} restaurants within 25 miles` })
+            })
+            .catch(() => {
+              toast({ title: "Failed to load nearby restaurants", variant: "destructive" })
+            })
+            .finally(() => setIsLoading(false))
+        }
       }
     }
 
@@ -204,6 +248,7 @@ export default function AppShell() {
       const params = new URLSearchParams(searchParams.toString())
       params.delete("ll")
       params.delete("z")
+      params.delete("nearme")
       params.delete("q") // we don't set name search from this page automatically
 
       params.delete("id")
@@ -233,6 +278,9 @@ export default function AppShell() {
   const resetFilters = () => {
     setFilters(DEFAULT_FILTERS)
     setSidebarSearchValue("")
+    setIsNearMe(false)
+    nearMeRef.current = false
+    setUserLocation(null)
   }
 
   const onSelectRestaurant = (id: string, lat?: number, long?: number) => {
@@ -246,9 +294,50 @@ export default function AppShell() {
   const onCitySelect = (city: City) => {
     setCenter([city.latitude, city.longitude])
     setZoom(11)
+    setIsNearMe(false)
+    nearMeRef.current = false
+    setUserLocation(null)
     setFilters((f) => ({ ...f, locationQuery: city.name }))
   }
 
+  const handleNearMe = () => {
+    if (!navigator.geolocation) {
+      toast({ title: "Geolocation not supported", description: "Your browser doesn't support geolocation.", variant: "destructive" })
+      return
+    }
+
+    setNearMeLoading(true)
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords
+        try {
+          setIsLoading(true)
+          const res = await fetch(`/api/restaurants?lat=${latitude}&lng=${longitude}&radius=40.2`)
+          if (!res.ok) throw new Error("Failed to fetch nearby restaurants")
+          const json = await res.json()
+          const restaurantData = json.data || json
+          setData(restaurantData || [])
+          setCenter([latitude, longitude])
+          setZoom(11)
+          setIsNearMe(true)
+          setUserLocation([latitude, longitude])
+          setFilters((f) => ({ ...f, locationQuery: "" }))
+          setSelectedId(null)
+          toast({ title: "Near Me", description: `Found ${restaurantData.length} restaurants within 25 miles` })
+        } catch {
+          toast({ title: "Failed to load nearby restaurants", variant: "destructive" })
+        } finally {
+          setIsLoading(false)
+          setNearMeLoading(false)
+        }
+      },
+      () => {
+        setNearMeLoading(false)
+        toast({ title: "Location access denied", description: "Please allow location access to use this feature.", variant: "destructive" })
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    )
+  }
 
   const filteredCount = filtered.length
 
@@ -268,7 +357,7 @@ export default function AppShell() {
             </span>
           )}
           <div className="hidden lg:block">
-            <Badge variant="secondary" className="ml-2 bg-white/60 backdrop-blur-sm border border-blue-200/50 text-blue-700 whitespace-nowrap rounded-full px-3 py-1 font-light">
+            <Badge variant="secondary" className="ml-6 bg-white/60 backdrop-blur-sm border border-blue-200/50 text-blue-700 whitespace-nowrap rounded-full px-3 py-1 font-light">
               {isLoading ? "Loading..." : `${filteredCount} places`}
             </Badge>
           </div>
@@ -286,6 +375,21 @@ export default function AppShell() {
 
         {/* Right section */}
         <div className="hidden lg:flex justify-end items-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleNearMe}
+            disabled={nearMeLoading}
+            className={cn(
+              "backdrop-blur-sm border rounded-full gap-2 font-light tracking-wide transition-all duration-300 transform hover:scale-105 hover:shadow-lg",
+              isNearMe
+                ? "bg-blue-600 border-blue-600 text-white hover:bg-blue-700 hover:text-white"
+                : "bg-white/80 border-slate-200/50 text-slate-700 hover:bg-white hover:text-blue-600 hover:border-blue-300/50"
+            )}
+          >
+            {nearMeLoading ? <Loader2 className="size-4 animate-spin" /> : <LocateFixed className="size-4" />}
+            Near Me
+          </Button>
           <CitySearch
             value={headerSearchValue}
             onChange={setHeaderSearchValue}
@@ -398,6 +502,7 @@ export default function AppShell() {
               setZoom(z)
             }}
             isLoading={isLoading}
+            userLocation={userLocation}
           />
           {!isSidebarOpen && (
             <>
@@ -418,17 +523,34 @@ export default function AppShell() {
 
           {/* Floating search and quick filters on mobile */}
           <div className="absolute left-3 right-3 top-3 z-[30] md:hidden space-y-4">
-            <CitySearch
-              value={headerSearchValue}
-              onChange={setHeaderSearchValue}
-              onCitySelect={(city) => {
-                onCitySelect(city)
-                setHeaderSearchValue("")
-                trackCitySelection(city.name, 'mobile')
-              }}
-              placeholder="Search cities..."
-              className="bg-white/90 border border-white/50 rounded-2xl shadow-md w-[80%] font-light tracking-wide"
-            />
+            <div className="flex items-center gap-2">
+              <CitySearch
+                value={headerSearchValue}
+                onChange={setHeaderSearchValue}
+                onCitySelect={(city) => {
+                  onCitySelect(city)
+                  setHeaderSearchValue("")
+                  trackCitySelection(city.name, 'mobile')
+                }}
+                placeholder="Search cities..."
+                className="bg-white/90 border border-white/50 rounded-2xl shadow-md flex-1 font-light tracking-wide"
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleNearMe}
+                disabled={nearMeLoading}
+                aria-label="Near Me"
+                className={cn(
+                  "h-10 w-10 rounded-2xl backdrop-blur-sm shadow-md transition-all duration-300 flex-shrink-0",
+                  isNearMe
+                    ? "bg-blue-600 border-blue-600 text-white hover:bg-blue-700"
+                    : "bg-white/90 border-white/50 text-slate-700 hover:bg-white hover:text-blue-600"
+                )}
+              >
+                {nearMeLoading ? <Loader2 className="size-4 animate-spin" /> : <LocateFixed className="size-4" />}
+              </Button>
+            </div>
             <AwardFilter
               selectedStars={filters.stars}
               onChange={(stars) => setFilters((f) => ({ ...f, stars }))}
