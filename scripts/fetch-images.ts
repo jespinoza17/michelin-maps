@@ -33,8 +33,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-const CONCURRENCY = 5
-const BATCH_SIZE = 100
+const CONCURRENCY = 3
+const DELAY_BETWEEN_BATCHES_MS = 2000
 
 function extractOgImage(html: string): string | null {
   // Match og:image meta tag - handles both property and name attributes, single and double quotes
@@ -75,20 +75,6 @@ async function fetchImageUrl(michelinUrl: string): Promise<string | null> {
   }
 }
 
-async function processInBatches<T, R>(
-  items: T[],
-  concurrency: number,
-  fn: (item: T) => Promise<R>
-): Promise<R[]> {
-  const results: R[] = []
-  for (let i = 0; i < items.length; i += concurrency) {
-    const batch = items.slice(i, i + concurrency)
-    const batchResults = await Promise.all(batch.map(fn))
-    results.push(...batchResults)
-  }
-  return results
-}
-
 async function main() {
   const dryRun = process.argv.includes('--dry-run')
   const limitArg = process.argv.find(a => a.startsWith('--limit='))
@@ -127,7 +113,9 @@ async function main() {
   let failCount = 0
   let processed = 0
 
-  // Process in concurrent batches
+  // Process in concurrent batches with delay to avoid rate limiting
+  let consecutiveFailures = 0
+
   for (let i = 0; i < restaurants.length; i += CONCURRENCY) {
     const batch = restaurants.slice(i, i + CONCURRENCY)
 
@@ -140,9 +128,9 @@ async function main() {
 
     // Update DB for successful fetches
     const updates = results.filter(r => r.imageUrl !== null)
+    const batchFailures = results.filter(r => r.imageUrl === null).length
 
     if (updates.length > 0 && !dryRun) {
-      // Update each restaurant individually (Supabase doesn't support bulk update by different IDs easily)
       await Promise.all(
         updates.map(async ({ id, imageUrl }) => {
           const { error } = await supabase
@@ -161,14 +149,26 @@ async function main() {
       processed++
       if (r.imageUrl) {
         successCount++
+        consecutiveFailures = 0
       } else {
         failCount++
+        consecutiveFailures++
       }
     }
 
     // Progress log every 50 restaurants
     if (processed % 50 === 0 || processed === restaurants.length) {
       console.log(`Progress: ${processed}/${restaurants.length} | ✅ ${successCount} | ❌ ${failCount}`)
+    }
+
+    // If we're getting rate limited (many consecutive failures), back off more aggressively
+    if (consecutiveFailures >= 15) {
+      console.log(`  ⏳ Backing off for 30s due to consecutive failures...`)
+      await new Promise(r => setTimeout(r, 30000))
+      consecutiveFailures = 0
+    } else {
+      // Standard delay between batches
+      await new Promise(r => setTimeout(r, DELAY_BETWEEN_BATCHES_MS))
     }
   }
 
