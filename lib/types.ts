@@ -30,6 +30,7 @@ export type Restaurant = {
   phone?: string
   website?: string
   michelin_url?: string
+  image_url?: string
   green_star: boolean
   facilities: string[]
   description: string

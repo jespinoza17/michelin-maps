@@ -608,8 +608,7 @@ function ListPanel({
 }
 
 function RestaurantCard({ restaurant, onClose }: { restaurant: Restaurant; onClose: () => void }) {
-  // TODO: get image from restaurant.image for all restaurants
-  const img = `/placeholder.svg?height=200&width=400&query=michelin%20star%20restaurant%20interior`
+  const img = restaurant.image_url || `/placeholder.svg?height=200&width=400&query=michelin%20star%20restaurant%20interior`
   
   return (
     <Card className="bg-white/90 backdrop-blur-xl border border-white/30 shadow-2xl shadow-slate-900/10 rounded-3xl overflow-hidden">

@@ -25,6 +25,7 @@ export interface Database {
           phone: string | null
           website: string | null
           michelin_url: string | null
+          image_url: string | null
           green_star: boolean
           facilities: string[] | null
           description: string
@@ -46,6 +47,7 @@ export interface Database {
           phone?: string | null
           website?: string | null
           michelin_url?: string | null
+          image_url?: string | null
           green_star?: boolean
           facilities?: string[] | null
           description: string
@@ -67,6 +69,7 @@ export interface Database {
           phone?: string | null
           website?: string | null
           michelin_url?: string | null
+          image_url?: string | null
           green_star?: boolean
           facilities?: string[] | null
           description?: string
@@ -93,6 +96,7 @@ export interface Database {
           phone: string | null
           website: string | null
           michelin_url: string | null
+          image_url: string | null
           green_star: boolean
           facilities: string[] | null
           description: string
