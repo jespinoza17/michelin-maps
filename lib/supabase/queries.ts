@@ -33,7 +33,8 @@ function dbRowToRestaurant(row: any): Restaurant {
     country: row.country,
     phone: row.phone,
     website: row.website,
-    michelin_url: row.michelin_url, 
+    michelin_url: row.michelin_url,
+    image_url: row.image_url,
     green_star: row.green_star,
     facilities: row.facilities || [],
     description: row.description

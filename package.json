@@ -9,7 +9,8 @@
     "start": "next start",
     "seed": "npx tsx scripts/seed.ts seed",
     "seed:clear": "npx tsx scripts/seed.ts clear",
-    "seed:count": "npx tsx scripts/seed.ts count"
+    "seed:count": "npx tsx scripts/seed.ts count",
+    "fetch-images": "npx tsx scripts/fetch-images.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS restaurants (
   phone VARCHAR(50),
   website TEXT,
   michelin_url TEXT,
+  image_url TEXT,
   green_star BOOLEAN NOT NULL DEFAULT false,
   facilities TEXT[], -- Array of facility strings
   description TEXT NOT NULL,
